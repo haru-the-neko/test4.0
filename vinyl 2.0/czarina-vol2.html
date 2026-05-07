@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#060814">
+<title>for Czarina — Vol. II · Daniel Caesar</title>
+<meta name="description" content="Vol. II — Daniel Caesar. One long exposure, the colour of a blue hour.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;1,9..40,200&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   VOL II — DANIEL CAESAR · one long exposure
+═══════════════════════════════════════════════════════════ */
+:root {
+  --bg: #060814;
+  --bg-deeper: #040510;
+  --ink: #c8d4f0;
+  --ink-soft: rgba(200,215,255,.75);
+  --ink-ghost: rgba(160,180,255,.45);
+  --accent: rgba(120,140,255,.9);
+  --focus-color: rgba(180,200,255,.95);
+  --cursor-bg: rgba(160,180,255,.7);
+  --cursor-bg-hover: rgba(200,220,255,.95);
+  --cursor-ring-color: rgba(160,180,255,.25);
+  --cursor-ring-hover: rgba(160,180,255,.5);
+  --preloader-bg: #060814;
+  --preloader-accent: rgba(160,180,255,.3);
+  --overlay-bg: #060814;
+  --back-color: rgba(160,180,255,.45);
+  --back-color-hover: rgba(200,220,255,.95);
+  --grain-opacity: .08;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  font-weight: 300;
+}
+
+/* ─── DEEP ATMOSPHERE ─────────────────── */
+.atm-base {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 100% 90% at 50% 25%,
+      #0d1035 0%, #080a22 45%, #040510 80%);
+}
+
+.atm-photo {
+  position: fixed; inset: 0; z-index: 1;
+}
+.atm-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: brightness(.45) saturate(.55) hue-rotate(215deg) contrast(1.08);
+  opacity: .75;
+}
+.atm-photo::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(6,8,20,.7) 0%, rgba(6,8,20,.3) 35%, rgba(6,8,20,.9) 100%);
+  pointer-events: none;
+}
+
+/* ─── AURORA POOL (cursor-reactive) ────
+   A large, soft indigo glow that eases toward the cursor.
+   Position is driven by JS via --aur-x / --aur-y. */
+.aurora {
+  position: fixed;
+  top: var(--aur-y, 50%);
+  left: var(--aur-x, 50%);
+  transform: translate(-50%, -50%);
+  width: 900px;
+  height: 900px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
+  background: radial-gradient(circle,
+    rgba(80,110,255,.22) 0%,
+    rgba(50,70,200,.14) 28%,
+    rgba(40,50,140,.06) 54%,
+    transparent 72%);
+  filter: blur(30px);
+  mix-blend-mode: screen;
+  opacity: .85;
+  transition: opacity var(--dur-slow) var(--ease-out);
+  will-change: top, left;
+}
+.aurora.is-bright {
+  opacity: 1;
+  background: radial-gradient(circle,
+    rgba(110,140,255,.3) 0%,
+    rgba(70,100,220,.18) 28%,
+    rgba(50,60,160,.08) 54%,
+    transparent 72%);
+}
+
+/* Secondary deep-pool behind the aurora — different speed, different size */
+.aurora-deep {
+  position: fixed;
+  top: var(--aur-y-deep, 50%);
+  left: var(--aur-x-deep, 50%);
+  transform: translate(-50%, -50%);
+  width: 1400px;
+  height: 1000px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(ellipse,
+    rgba(30,45,150,.15) 0%,
+    rgba(20,30,100,.07) 45%,
+    transparent 75%);
+  filter: blur(60px);
+  mix-blend-mode: screen;
+  opacity: .7;
+  will-change: top, left;
+}
+
+/* Page vignette stays on top of everything ambient */
+.atm-vign {
+  position: fixed; inset: 0; z-index: 4;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 95% 80% at 50% 55%,
+      transparent 38%, rgba(6,8,20,.6) 100%);
+}
+
+/* ─── HERO ─────────────────────────── */
+.hero {
+  position: relative; z-index: 10;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: var(--s-9) var(--s-6) var(--s-7);
+}
+.hero-img {
+  position: absolute; inset: 0;
+  background-image: url('images/bg2.webp');
+  background-size: cover;
+  background-position: center 30%;
+  filter: brightness(.18) saturate(.3) hue-rotate(210deg) contrast(1.28);
+  transform: scale(1.04);
+  transition: transform 3s var(--ease-out);
+}
+.hero:hover .hero-img { transform: scale(1); }
+.hero-fade {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 180px;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+  z-index: 2;
+}
+.hero-content {
+  position: relative; z-index: 3;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1.2s var(--ease-out), transform 1.2s var(--ease-out);
+}
+.hero-content.is-on { opacity: 1; transform: translateY(0); }
+
+.hero-eyebrow {
+  font-size: 9px;
+  font-weight: 200;
+  letter-spacing: .6em;
+  color: rgba(160,180,255,.58);
+  text-transform: uppercase;
+  margin-bottom: var(--s-5);
+}
+.hero-title {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: clamp(1.8rem, 5vw, 3.2rem);
+  font-weight: 400;
+  color: rgba(220,232,255,.95);
+  letter-spacing: .02em;
+  line-height: 1.1;
+  margin: 0;
+}
+.hero-title::after {
+  content: '';
+  display: block;
+  width: 32px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(160,180,255,.5), transparent);
+  margin: var(--s-3) auto 0;
+}
+.hero-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-style: italic;
+  font-size: .92rem;
+  font-weight: 200;
+  color: rgba(160,180,255,.5);
+  letter-spacing: .06em;
+  margin-top: var(--s-4);
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: var(--s-7); left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+  animation: scroll-bob 2.8s ease-in-out infinite;
+}
+.scroll-hint.is-on { opacity: 1; }
+.scroll-hint span {
+  font-family: 'DM Sans', sans-serif;
+  font-style: italic;
+  font-size: .72rem;
+  letter-spacing: .3em;
+  color: rgba(160,180,255,.5);
+  text-transform: lowercase;
+}
+.scroll-hint-line {
+  width: 1px; height: 28px;
+  background: linear-gradient(to bottom, rgba(160,180,255,.45), transparent);
+}
+@keyframes scroll-bob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(6px); }
+}
+
+/* ─── EXPOSURE INTRO ─────────────────── */
+.expo {
+  position: relative; z-index: 10;
+  max-width: 560px;
+  margin: var(--s-9) auto 0;
+  padding: var(--s-6) var(--s-5);
+  text-align: center;
+}
+.expo-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 200;
+  letter-spacing: .55em;
+  color: rgba(160,180,255,.42);
+  text-transform: uppercase;
+  margin-bottom: var(--s-4);
+}
+.expo-rule {
+  width: 32px; height: 1px;
+  background: rgba(160,180,255,.3);
+  margin: 0 auto var(--s-4);
+}
+.expo-text {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.3vw, 1.2rem);
+  line-height: 1.85;
+  color: rgba(180,200,255,.65);
+  letter-spacing: .005em;
+}
+
+/* ─── THE MEMORIES (stacked, alternating) ─── */
+.memories {
+  position: relative; z-index: 10;
+  max-width: 980px;
+  margin: var(--s-7) auto 0;
+  padding: 0 var(--s-5);
+  list-style: none;
+}
+.memory {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  align-items: stretch;
+  min-height: 380px;
+  padding: var(--s-7) 0;
+  border-top: 1px solid rgba(160,180,255,.08);
+}
+.memory:last-child {
+  border-bottom: 1px solid rgba(160,180,255,.08);
+}
+
+/* The bleed between cards — an indigo gradient that overlaps from one card to the next */
+.memory::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: 30%; right: 30%;
+  height: 100px;
+  background: radial-gradient(ellipse,
+    rgba(80,110,255,.12) 0%,
+    rgba(80,110,255,.04) 50%,
+    transparent 80%);
+  pointer-events: none;
+  filter: blur(20px);
+  opacity: 0;
+  transition: opacity 1s var(--ease-out);
+}
+.memory.is-revealed::before { opacity: 1; }
+
+/* Photo side */
+.memory-photo {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background: #040510;
+  max-width: 420px;
+}
+.memory-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: brightness(.7) saturate(.55) hue-rotate(210deg) contrast(1.12);
+  transition: filter var(--dur-slow) var(--ease-out),
+              transform 1.8s var(--ease-out);
+}
+.memory:hover .memory-photo img,
+.memory.is-active .memory-photo img {
+  filter: brightness(.95) saturate(.75) hue-rotate(205deg) contrast(1.04);
+  transform: scale(1.025);
+}
+/* Indigo tint overlay on photo */
+.memory-photo::after {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(20,30,100,.18) 0%, transparent 50%, rgba(20,30,100,.3) 100%),
+    radial-gradient(ellipse 70% 50% at 30% 25%, rgba(100,130,255,.1) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 1;
+}
+/* Light-leak stripe on hover */
+.memory-photo::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: -30%;
+  width: 30%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(140,180,255,.12) 50%,
+    transparent 100%);
+  transition: left 1.2s var(--ease-out);
+  z-index: 2;
+  pointer-events: none;
+}
+.memory:hover .memory-photo::before,
+.memory.is-active .memory-photo::before { left: 130%; }
+
+.memory-photo-num {
+  position: absolute;
+  top: 14px; right: 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 200;
+  letter-spacing: .35em;
+  color: rgba(200,215,255,.55);
+  z-index: 3;
+}
+.memory-photo-ph {
+  position: absolute; inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #060818;
+  z-index: 1;
+}
+.memory-photo-ph span {
+  font-size: .58rem;
+  color: rgba(160,180,255,.28);
+  letter-spacing: .25em;
+}
+
+/* Text side */
+.memory-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--s-6) var(--s-7);
+  min-width: 0;
+}
+.memory-time {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 200;
+  letter-spacing: .45em;
+  color: rgba(160,180,255,.42);
+  text-transform: uppercase;
+  margin-bottom: var(--s-4);
+}
+.memory-caption {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  color: rgba(200,215,255,.88);
+  line-height: 1.4;
+  letter-spacing: .01em;
+  margin-bottom: var(--s-5);
+  font-weight: 500;
+}
+.memory-lyric {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: .95rem;
+  color: rgba(140,160,220,.6);
+  line-height: 1.8;
+  margin-bottom: var(--s-6);
+  letter-spacing: .005em;
+  max-width: 340px;
+}
+.memory-song {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding-top: var(--s-4);
+  border-top: 1px solid rgba(160,180,255,.1);
+}
+.memory-song-mark {
+  font-size: 1rem;
+  color: rgba(120,150,255,.7);
+}
+.memory-song-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .82rem;
+  letter-spacing: .12em;
+  color: rgba(180,200,255,.75);
+  text-transform: uppercase;
+  transition: color var(--dur-med) var(--ease-out);
+}
+.memory:hover .memory-song-title,
+.memory.is-active .memory-song-title { color: rgba(220,230,255,1); }
+.memory-song-hint {
+  margin-left: auto;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 8px;
+  letter-spacing: .35em;
+  color: rgba(160,180,255,.3);
+  text-transform: uppercase;
+  transition: color var(--dur-med) var(--ease-out);
+}
+.memory:hover .memory-song-hint,
+.memory.is-active .memory-song-hint { color: rgba(180,200,255,.65); }
+
+/* Spotify drawer spans full card width at the bottom */
+.memory-sp {
+  grid-column: 1 / -1;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--dur-med) var(--ease-in-out);
+  background: rgba(4,5,16,.9);
+  border-top: 1px solid rgba(160,180,255,.08);
+}
+.memory:hover .memory-sp,
+.memory.is-active .memory-sp { max-height: 100px; }
+.memory-sp iframe { width: 100%; border: none; display: block; }
+
+/* Alternate sides */
+.memory:nth-child(even) .memory-photo { order: 2; margin-left: auto; }
+.memory:nth-child(even) .memory-text  { order: 1; text-align: right; }
+.memory:nth-child(even) .memory-text .memory-lyric { margin-left: auto; }
+.memory:nth-child(even) .memory-song { flex-direction: row-reverse; }
+.memory:nth-child(even) .memory-song-hint { margin-left: 0; margin-right: auto; }
+
+/* Make the whole memory a button — clickable for touch, focusable for keyboard */
+.memory.as-btn {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  width: 100%;
+}
+.memory.as-btn:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 4px;
+}
+
+/* ─── CLOSING ───────────────────── */
+.closing {
+  position: relative; z-index: 10;
+  max-width: var(--container-narrow);
+  margin: var(--s-9) auto 0;
+  padding: var(--s-8) var(--s-6) var(--s-9);
+  text-align: center;
+}
+.closing-rule {
+  width: 40px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(160,180,255,.35), transparent);
+  margin: 0 auto var(--s-7);
+}
+.closing-quote {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 2.5vw, 1.3rem);
+  color: rgba(160,180,255,.62);
+  line-height: 2.1;
+  margin-bottom: var(--s-5);
+  letter-spacing: .01em;
+}
+.closing-quote em {
+  font-style: normal;
+  color: rgba(220,232,255,.92);
+}
+.closing-divider {
+  width: 24px; height: 1px;
+  background: rgba(160,180,255,.25);
+  margin: 0 auto var(--s-4);
+}
+.closing-sig {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 200;
+  letter-spacing: .55em;
+  color: rgba(160,180,255,.45);
+  text-transform: uppercase;
+}
+
+/* ─── MOBILE ────────────────────── */
+@media (max-width: 620px) {
+  .hero { min-height: 80vh; }
+  .memory {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding: var(--s-5) 0;
+  }
+  .memory-photo { max-width: 100%; aspect-ratio: 4 / 3; }
+  .memory-text { padding: var(--s-5) var(--s-4); }
+  .memory:nth-child(even) .memory-photo { order: 1; margin-left: 0; }
+  .memory:nth-child(even) .memory-text  { order: 2; text-align: left; }
+  .memory:nth-child(even) .memory-text .memory-lyric { margin-left: 0; }
+  .memory:nth-child(even) .memory-song { flex-direction: row; }
+  .memory:nth-child(even) .memory-song-hint { margin-left: auto; margin-right: 0; }
+  /* Hide the giant aurora pool on mobile — perf + it crowds the layout */
+  .aurora { width: 600px; height: 600px; opacity: .6; }
+  .aurora-deep { display: none; }
+}
+
+/* ─── REDUCED MOTION ─────────── */
+@media (prefers-reduced-motion: reduce) {
+  .aurora, .aurora-deep {
+    transition: none;
+  }
+  .memory::before { opacity: 1; transition: none; }
+  .memory-photo::before { display: none; }
+}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<!-- Preloader -->
+<div class="preloader" aria-hidden="true">
+  <div style="font-family:'DM Serif Display',serif;font-style:italic;font-size:1.3rem;color:rgba(160,180,255,.5);letter-spacing:.04em;">Daniel Caesar</div>
+  <div style="font-size:.58rem;font-weight:200;letter-spacing:.55em;color:rgba(160,180,255,.3);text-transform:uppercase;">exposing</div>
+  <div class="preloader-bar"></div>
+</div>
+
+<!-- Atmosphere -->
+<div class="atm-base" aria-hidden="true"></div>
+<div class="atm-photo" aria-hidden="true">
+  <img src="images/bg2.webp" alt="" loading="lazy" decoding="async"
+       onerror="this.style.display='none'">
+</div>
+<div class="aurora-deep" id="auroraDeep" aria-hidden="true"></div>
+<div class="aurora" id="aurora" aria-hidden="true"></div>
+<div class="atm-vign" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="page-overlay" aria-hidden="true"></div>
+
+<!-- Back -->
+<button class="back-btn" data-action="back" data-href="index.html"
+        aria-label="Back to collection">
+  <span class="back-arrow" aria-hidden="true"></span>back
+</button>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="hero-img" aria-hidden="true"></div>
+  <div class="hero-fade" aria-hidden="true"></div>
+
+  <div class="hero-content" id="heroContent">
+    <p class="hero-eyebrow">Vol. II · To Czarina</p>
+    <h1 class="hero-title">Daniel Caesar</h1>
+    <p class="hero-sub">one long exposure, the colour of a blue hour</p>
+  </div>
+
+  <div class="scroll-hint" id="scrollHint" aria-hidden="true">
+    <span>move — the light follows</span>
+    <div class="scroll-hint-line"></div>
+  </div>
+</header>
+
+<!-- Main -->
+<main id="main">
+  <section class="expo js-reveal" aria-labelledby="expo-heading">
+    <p class="expo-label">one long exposure · four memories</p>
+    <div class="expo-rule" aria-hidden="true"></div>
+    <p id="expo-heading" class="expo-text">
+      the light here moves when you do.<br>
+      lean into it.
+    </p>
+  </section>
+
+  <ul class="memories" id="memories"></ul>
+
+  <aside class="closing js-reveal">
+    <div class="closing-rule" aria-hidden="true"></div>
+    <p class="closing-quote">
+      every moment with you<br>
+      is <em>worth keeping forever.</em><br><br>
+      thank you for being<br>
+      <em>every song I come back to.</em>
+    </p>
+    <div class="closing-divider" aria-hidden="true"></div>
+    <p class="closing-sig">with love — Jay</p>
+  </aside>
+</main>
+
+<!-- Volume nav -->
+<nav class="vol-nav" aria-label="Volume navigation">
+  <span class="vol-nav-label">vol.</span>
+  <button type="button" data-vol-prev aria-label="Previous volume">‹</button>
+  <button type="button" data-vol-next aria-label="Next volume">›</button>
+</nav>
+
+<script src="shared.js"></script>
+<script>
+'use strict';
+
+(function() {
+const {
+  qs, qsa, esc,
+  prefersReducedMotion, isTouch,
+  managedRaf, initHeroReveal,
+  buildSpotifyEmbed, initExclusiveActive,
+} = window.CzarinaSystem;
+
+/* ─── DATA ─── */
+const MEMORIES = [
+  {
+    num: '01',
+    time: 'the blue hour',
+    photo: 'images/photo1.jpeg',
+    phTxt: 'photo 01',
+    caption: "I'll keep on loving you,\nlong after the night is gone",
+    lyric: 'somewhere between the second verse\nand the third, I knew.',
+    song: 'Best Part',
+    spotify: 'https://open.spotify.com/embed/track/6CVciPxACaLYZfx49VGSPy?utm_source=generator',
+  },
+  {
+    num: '02',
+    time: 'after midnight',
+    photo: 'images/photo2.jpeg',
+    phTxt: 'photo 02',
+    caption: 'stay close — nothing out there\ncan reach us here',
+    lyric: "I don't need the world to quiet down,\nI just need you to stay in the frame.",
+    song: 'Get You',
+    spotify: 'https://open.spotify.com/embed/track/2XjoHA58XD0t3qye8bYGU8?utm_source=generator',
+  },
+  {
+    num: '03',
+    time: 'the morning after',
+    photo: 'images/photo3.jpeg',
+    phTxt: 'photo 03',
+    caption: 'truly, it was always\ngoing to be you',
+    lyric: 'every love song I have liked\nis about you now, retroactively.',
+    song: 'Japanese Denim',
+    spotify: null,
+  },
+  {
+    num: '04',
+    time: 'the last of the roll',
+    photo: 'images/photo4.jpeg',
+    phTxt: 'photo 04',
+    caption: 'you are the sweetest thing\nI never knew I needed',
+    lyric: "I didn't know I'd been waiting\nuntil you arrived on time.",
+    song: 'Superposition',
+    spotify: null,
+  },
+];
+
+/* ─── BUILD ─── */
+qs('#memories').innerHTML = MEMORIES.map((m, i) => {
+  return `
+    <li>
+      <div class="memory js-reveal as-btn" tabindex="0" role="button"
+           data-interactive data-song="${esc(m.song)}"
+           aria-label="Memory ${esc(m.num)}: ${esc(m.song)} — press Enter to play">
+        <div class="memory-photo">
+          <img src="${esc(m.photo)}" alt="A photograph in blue-hour tones, memory ${esc(m.num)}"
+               loading="lazy" decoding="async"
+               onerror="this.style.display='none';this.nextElementSibling.nextElementSibling.style.display='flex'">
+          <span class="memory-photo-num" aria-hidden="true">${esc(m.num)}</span>
+          <div class="memory-photo-ph" aria-hidden="true"><span>${esc(m.phTxt)}</span></div>
+        </div>
+        <div class="memory-text">
+          <p class="memory-time">${esc(m.time)}</p>
+          <p class="memory-caption">${esc(m.caption).replace(/\n/g, '<br>')}</p>
+          <p class="memory-lyric">${esc(m.lyric).replace(/\n/g, '<br>')}</p>
+          <div class="memory-song">
+            <span class="memory-song-mark" aria-hidden="true">♩</span>
+            <span class="memory-song-title">${esc(m.song)}</span>
+            <span class="memory-song-hint">hover · play</span>
+          </div>
+        </div>
+        <div class="memory-sp">${buildSpotifyEmbed(m.spotify, m.song)}</div>
+      </div>
+    </li>`;
+}).join('');
+
+/* Update hint text for touch devices — "hover · play" makes no sense on mobile */
+if (isTouch()) {
+  qsa('.memory-song-hint').forEach(el => { el.textContent = 'tap · play'; });
+}
+
+/* ─── AURORA: cursor-reactive pool + deeper secondary ───
+   Smooth ease toward target via rAF. Skipped under reduced motion. */
+const aurora = qs('#aurora');
+const deep = qs('#auroraDeep');
+
+let targetX = window.innerWidth / 2;
+let targetY = window.innerHeight / 2;
+let curX = targetX, curY = targetY;
+let deepX = targetX, deepY = targetY;
+let lastMove = Date.now();
+
+if (!prefersReducedMotion()) {
+  // Shared rAF loop — used by both desktop and touch paths
+  const auroraLoop = managedRaf(function auroraTick() {
+    curX  += (targetX - curX)  * 0.08;
+    curY  += (targetY - curY)  * 0.08;
+    deepX += (targetX - deepX) * 0.035;
+    deepY += (targetY - deepY) * 0.035;
+
+    aurora.style.setProperty('--aur-x',      curX  + 'px');
+    aurora.style.setProperty('--aur-y',      curY  + 'px');
+    deep.style.setProperty('--aur-x-deep',   deepX + 'px');
+    deep.style.setProperty('--aur-y-deep',   deepY + 'px');
+
+    // Idle orbit when no movement for 2s — applies on both desktop and touch
+    if (Date.now() - lastMove > 2000) {
+      const t = Date.now() * 0.0004;
+      targetX = window.innerWidth  * 0.5 + Math.cos(t) * 140;
+      targetY = window.innerHeight * 0.5 + Math.sin(t * 0.7) * 100;
+    }
+  });
+
+  if (!isTouch()) {
+    // Desktop: aurora follows cursor via pointermove
+    document.addEventListener('pointermove', e => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+      lastMove = Date.now();
+    }, { passive: true });
+  } else {
+    // Touch: aurora follows finger via touchmove.
+    // { passive: true } guarantees scrolling is never blocked.
+    // On touchend, lastMove is set to 0 so the idle orbit resumes
+    // immediately — the aurora drifts away as the finger lifts,
+    // which mirrors the feeling of releasing a glowing object.
+    document.addEventListener('touchmove', e => {
+      if (e.touches.length !== 1) return; // ignore multi-touch
+      targetX = e.touches[0].clientX;
+      targetY = e.touches[0].clientY;
+      lastMove = Date.now();
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => {
+      // Expire lastMove so the orbit kicks in immediately on lift
+      lastMove = 0;
+    }, { passive: true });
+  }
+
+  auroraLoop.start();
+} else {
+  // Reduced motion: static centered aurora, no animation
+  aurora.style.setProperty('--aur-x', '50%');
+  aurora.style.setProperty('--aur-y', '50%');
+  deep.style.setProperty('--aur-x-deep', '50%');
+  deep.style.setProperty('--aur-y-deep', '50%');
+}
+
+/* ─── AURORA BRIGHTENS ON HOVER/FOCUS (desktop) ─── */
+qsa('.memory').forEach(m => {
+  m.addEventListener('mouseenter', () => aurora.classList.add('is-bright'));
+  m.addEventListener('mouseleave', () => aurora.classList.remove('is-bright'));
+  m.addEventListener('focusin',   () => aurora.classList.add('is-bright'));
+  m.addEventListener('focusout',  () => aurora.classList.remove('is-bright'));
+});
+
+/* ─── TOUCH / KEYBOARD TOGGLE ─── */
+// onActivate mirrors aurora brightening on touch so tapping a memory
+// produces the same is-bright effect that desktop hover does.
+initExclusiveActive('.memory', {
+  keyboard: true,
+  onActivate: (el, isOn) => {
+    if (isOn) aurora.classList.add('is-bright');
+    else       aurora.classList.remove('is-bright');
+  },
+});
+
+/* ─── HERO REVEAL ─── */
+initHeroReveal({
+  duration: 1400,
+  reveals: [
+    { el: qs('#heroContent') },
+    { el: qs('#scrollHint'), delay: 700 },
+  ],
+});
+
+})();
+</script>
+</body>
+</html>

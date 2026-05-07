@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f0906">
+<title>for Czarina — our table</title>
+<meta name="description" content="A small wooden table of the things we kept — drag, open, strike, tear, tip.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Special+Elite&family=Caveat:wght@400;500;600&family=Homemade+Apple&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+:root {
+  --bg: #0f0906;
+  --paper: #f5e8c5;
+  --focus-color: rgba(255,210,140,.9);
+  --cursor-bg: rgba(245,232,208,.55);
+  --cursor-bg-hover: rgba(255,215,150,.95);
+  --cursor-ring-color: rgba(245,232,208,.2);
+  --cursor-ring-hover: rgba(255,215,150,.45);
+  --preloader-bg: #0f0906;
+  --overlay-bg: #0f0906;
+  --back-color: rgba(245,232,208,.45);
+  --back-color-hover: rgba(255,220,170,.95);
+  --grain-opacity: .14;
+}
+html, body { overflow-x: hidden; }
+body {
+  background: var(--bg);
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--paper);
+  min-height: 100dvh;
+  user-select: none;
+}
+.note-paper, .note-paper * { user-select: text; }
+
+/* ─── OPENING ───────────────── */
+.opening {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #0a0604;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+.opening.is-gone { opacity: 0; pointer-events: none; }
+.opening-line {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 3vw, 1.7rem);
+  color: rgba(245,232,208,0);
+  text-align: center; line-height: 1.9;
+  max-width: 560px; padding: 0 var(--s-6);
+  transition: color 1.5s var(--ease-out);
+}
+.opening-line.is-visible { color: rgba(245,232,208,.72); }
+.opening-sub {
+  font-family: 'Special Elite', monospace;
+  font-size: 10px; letter-spacing: .45em;
+  color: rgba(245,232,208,0); text-transform: uppercase;
+  margin-top: var(--s-6);
+  transition: color 1s var(--ease-out);
+  text-align: center;
+}
+.opening-sub.is-visible { color: rgba(245,232,208,.4); }
+
+/* ─── TABLE ───────────────────── */
+.table {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 65% at 50% 50%,
+      rgba(60,35,18,.55) 0%, rgba(15,9,6,.28) 58%, #0a0604 100%),
+    repeating-linear-gradient(42deg,
+      transparent 0 3px, rgba(90,55,25,.07) 3px 4px),
+    #0f0906;
+}
+.table-vign {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background: radial-gradient(ellipse 85% 70% at 50% 50%,
+    transparent 30%, rgba(0,0,0,.75) 100%);
+}
+.table-light {
+  position: fixed; top: -150px; left: 50%;
+  transform: translateX(-50%);
+  width: 900px; height: 700px; border-radius: 50%;
+  background: radial-gradient(ellipse,
+    rgba(255,200,100,.14) 0%, transparent 55%);
+  pointer-events: none; z-index: 2;
+  filter: blur(50px);
+  animation: lamp-sway 9s ease-in-out infinite;
+}
+@keyframes lamp-sway {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-48%) translateY(3px); }
+}
+
+/* Soft focus vignette used during "peak moments" (note/polaroid open) */
+.focus-dim {
+  position: fixed; inset: 0; z-index: 9000;
+  background: radial-gradient(ellipse 55% 45% at 50% 50%,
+    transparent 0%, rgba(0,0,0,.55) 70%, rgba(0,0,0,.82) 100%);
+  opacity: 0; pointer-events: none;
+  transition: opacity 900ms var(--ease-out);
+}
+.focus-dim.is-on { opacity: 1; }
+
+/* ─── SCENE ────────────────────── */
+.scene {
+  position: fixed; inset: 0; z-index: 10;
+  opacity: 0;
+  transition: opacity 1s var(--ease-out);
+  touch-action: none;
+}
+.scene.is-visible { opacity: 1; }
+.scene.is-peak .obj:not(.is-peak-target) {
+  filter: blur(1.5px) brightness(.55);
+  transition: filter 700ms var(--ease-out);
+}
+.scene.is-peak .obj.is-peak-target {
+  z-index: 9200 !important;
+  filter: drop-shadow(0 18px 40px rgba(0,0,0,.7)) brightness(1.06);
+  transition: filter 700ms var(--ease-out), transform 700ms var(--ease-soft);
+}
+
+/* ─── OBJECTS ─────────────────── */
+.obj {
+  position: absolute;
+  transition: filter var(--dur-fast) var(--ease-out),
+              transform var(--dur-med) var(--ease-soft);
+  touch-action: none;
+  cursor: grab;
+  will-change: transform;
+}
+.obj.is-grabbed {
+  filter: brightness(1.12) drop-shadow(0 10px 22px rgba(0,0,0,.55));
+  z-index: 500 !important;
+  cursor: grabbing;
+  transition: filter var(--dur-fast) var(--ease-out);
+}
+.obj.is-touching { transform: scale(1.04) !important; }
+.obj:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 6px;
+  border-radius: 4px;
+}
+
+/* Gentle breathing idle hint (opt-in via .is-breathing) */
+.obj.is-breathing { animation: obj-breathe 6s ease-in-out infinite; }
+@keyframes obj-breathe {
+  0%, 100% { filter: drop-shadow(0 4px 10px rgba(0,0,0,.45)); }
+  50%      { filter: drop-shadow(0 6px 18px rgba(255,190,110,.22)) brightness(1.05); }
+}
+
+.obj-label {
+  position: absolute;
+  top: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Special Elite', monospace;
+  font-size: 9px; letter-spacing: .25em;
+  color: rgba(245,232,208,.35);
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.obj:hover .obj-label,
+.obj:focus-visible .obj-label { opacity: 1; }
+
+/* ─── MATCHBOX ─────────────── */
+.matchbox {
+  position: relative;
+  width: 160px; height: 68px;
+  perspective: 800px;
+}
+.mb-cover, .mb-tray {
+  position: absolute; inset: 0;
+  border-radius: 4px;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,.55),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    inset 0 -2px 0 rgba(0,0,0,.25);
+}
+.mb-cover {
+  background: linear-gradient(180deg, var(--mb-col1, #6a2818) 0%, var(--mb-col2, #4a1808) 100%);
+  z-index: 3;
+  border: 1px solid rgba(0,0,0,.4);
+  overflow: hidden;
+  transition: transform var(--dur-med) var(--ease-soft);
+}
+/* Paper wear / fiber noise baked into every cover */
+.mb-cover::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(87deg, transparent 0 2px, rgba(0,0,0,.05) 2px 3px),
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.06), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(0,0,0,.08), transparent 50%);
+  mix-blend-mode: overlay;
+  opacity: .7; pointer-events: none;
+}
+.mb-cover::after {
+  content: '';
+  position: absolute; left: 6px; right: 6px; top: 6px;
+  height: 8px;
+  background: repeating-linear-gradient(90deg,
+    rgba(20,10,5,.7) 0 1px, transparent 1px 3px);
+  opacity: .6;
+}
+.mb-label {
+  position: absolute;
+  left: 12px; right: 12px; bottom: 10px;
+  font-family: 'Special Elite', monospace;
+  font-size: 9px; letter-spacing: .2em;
+  color: var(--mb-label-color, rgba(245,220,160,.8));
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.4;
+  z-index: 2;
+}
+.mb-title {
+  font-family: 'Caveat', cursive;
+  font-size: 1.1rem;
+  color: var(--mb-label-color, rgba(245,220,160,.9));
+  display: block;
+  text-align: center;
+  margin-top: 14px;
+  position: relative;
+  z-index: 2;
+}
+.mb-tray {
+  background: linear-gradient(180deg, #3a1a0a 0%, #1a0a04 100%);
+  z-index: 2;
+}
+.mb-tray-inner {
+  position: absolute;
+  left: 10px; right: 10px; top: 10px; bottom: 10px;
+  background: rgba(0,0,0,.3);
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Special Elite', monospace;
+  font-size: 9px; letter-spacing: .18em;
+  color: rgba(245,220,160,.55);
+  text-align: center;
+  line-height: 1.5;
+}
+/* Row of matches visible in the tray (purely decorative SVG layer) */
+.mb-tray-matches {
+  position: absolute; left: 8px; right: 8px; top: 6px; height: 14px;
+  display: flex; gap: 2px; align-items: flex-start;
+  pointer-events: none; z-index: 3;
+}
+.mb-tray-matches span {
+  flex: 1; height: 100%;
+  background: linear-gradient(to bottom,
+    var(--match-head, #2a1a0e) 0 22%,
+    #e8d49a 22% 100%);
+  border-radius: 1px 1px 0 0;
+  opacity: .85;
+}
+.matchbox.is-open .mb-cover { transform: translateX(-72%); }
+
+/* Distinct cover treatments (add-on — does NOT replace original gradients) */
+.mb-cover.cover-est {
+  background:
+    radial-gradient(ellipse at 50% 110%, rgba(255,160,180,.28), transparent 55%),
+    linear-gradient(180deg, #f5ead0 0%, #e8d9b2 100%);
+}
+.mb-cover.cover-est .mb-tulip {
+  position: absolute; left: 50%; bottom: 6px;
+  transform: translateX(-50%);
+  width: 36px; height: 28px;
+  opacity: .9;
+}
+.mb-cover.cover-mac {
+  background:
+    linear-gradient(135deg, #d8d2c2 0%, #b5ad98 100%);
+}
+.mb-cover.cover-mac .mb-album {
+  position: absolute; left: 8px; top: 8px;
+  width: 22px; height: 22px;
+  background:
+    radial-gradient(circle, #1a1208 0%, #0a0604 75%);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+}
+.mb-cover.cover-mac .mb-album::after{
+  content:''; position:absolute; left:50%; top:50%;
+  width:5px; height:5px; border-radius:50%;
+  background:#e0c878; transform:translate(-50%,-50%);
+}
+.mb-cover.cover-brew {
+  background: linear-gradient(180deg, #f4ead2 0%, #e0d2b0 100%);
+}
+.mb-cover.cover-brew .mb-brew-stamp {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%,-55%);
+  width: 52px; height: 52px;
+  border: 1.3px solid rgba(120,85,45,.75);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Special Elite', monospace;
+  font-size: 6px; letter-spacing: .22em;
+  color: rgba(90,60,30,.85);
+  text-align: center; line-height: 1.35;
+  box-shadow: inset 0 0 0 3px rgba(120,85,45,.08);
+}
+.mb-cover.cover-ribbon {
+  background:
+    linear-gradient(180deg, #f8f5ee 0%, #e8e2d0 100%);
+}
+.mb-cover.cover-ribbon .rr-banner {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%,-55%) rotate(-4deg);
+  font-family: 'Caveat', cursive;
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: #fff;
+  background: linear-gradient(180deg, #c0201a 0%, #8a1410 100%);
+  padding: 2px 16px;
+  border-radius: 10px 30px 10px 30px / 14px;
+  box-shadow: 0 2px 5px rgba(0,0,0,.3), inset 0 -2px 0 rgba(0,0,0,.25);
+  letter-spacing: .01em;
+}
+.mb-cover.cover-snack {
+  background: linear-gradient(180deg, #3a5a2a 0%, #203a18 100%);
+}
+.mb-cover.cover-snack .mb-label { color: rgba(240,220,140,.9); }
+.mb-cover.cover-snack .snack-dots {
+  position: absolute; left: 10px; right: 10px; top: 22px;
+  display: flex; gap: 4px; justify-content: center;
+}
+.mb-cover.cover-snack .snack-dots i {
+  width: 10px; height: 14px; border-radius: 1px;
+  display: inline-block;
+}
+.mb-cover.cover-snack .snack-dots i:nth-child(1){ background:linear-gradient(#8a5020,#4a2810); }
+.mb-cover.cover-snack .snack-dots i:nth-child(2){ background:linear-gradient(#d8b040,#8a6020); }
+.mb-cover.cover-snack .snack-dots i:nth-child(3){ background:linear-gradient(#c84040,#701818); }
+.mb-cover.cover-cola {
+  background: linear-gradient(160deg, #f0d070 0%, #c89830 55%, #a07820 100%);
+  box-shadow:
+    0 4px 12px rgba(0,0,0,.55),
+    inset 0 1px 0 rgba(255,255,255,.35),
+    inset 0 -2px 0 rgba(80,50,10,.5);
+}
+.mb-cover.cover-cola .cola-can {
+  position: absolute; left: 26%; top: 18px; transform: translateX(-50%);
+  width: 12px; height: 26px; border-radius: 2px;
+  background: linear-gradient(180deg, #d01818 0%, #8a1010 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
+}
+.mb-cover.cover-cola .cola-cup {
+  position: absolute; right: 24%; top: 20px; transform: translateX(50%);
+  width: 18px; height: 14px; border-radius: 2px 2px 8px 8px;
+  background: linear-gradient(180deg, #f5ead0 0%, #c8a878 100%);
+  border: 1px solid rgba(60,30,10,.5);
+}
+.mb-cover.cover-cola .cola-cup::after{
+  content:''; position:absolute; left:2px; right:2px; top:3px; height:4px;
+  background: #3a1a08; border-radius:1px;
+}
+
+/* ─── TICKET ─────────────────── */
+.ticket {
+  width: 190px; height: 72px;
+  position: relative;
+  transform-style: preserve-3d;
+}
+.ticket-body {
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, #e8d89c 0%, #d4b87c 100%);
+  border-radius: 3px;
+  box-shadow:
+    0 3px 10px rgba(0,0,0,.55),
+    inset 0 1px 0 rgba(255,255,255,.3);
+  display: flex; padding: 10px 14px;
+  position: relative; overflow: hidden;
+}
+.ticket-body::before {
+  content: '';
+  position: absolute; top: 50%; left: 0; bottom: 0; width: 100%;
+  background: repeating-linear-gradient(0deg,
+    transparent 0 3px, rgba(120,85,40,.1) 3px 4px);
+  pointer-events: none;
+}
+.ticket-perf {
+  position: absolute; top: 0; bottom: 0; left: 42%; width: 1px;
+  background: repeating-linear-gradient(0deg,
+    transparent 0 3px, rgba(80,55,25,.6) 3px 6px);
+}
+.ticket-stub, .ticket-main {
+  display: flex; flex-direction: column; justify-content: space-between;
+  font-family: 'Special Elite', monospace;
+  color: #3a2820; z-index: 1;
+}
+.ticket-stub {
+  width: 40%; align-items: center; text-align: center;
+  padding-right: 6px;
+}
+.ticket-main { width: 58%; padding-left: 12px; }
+.ticket-stub-num { font-size: 1.1rem; letter-spacing: .08em; }
+.ticket-stub-sub { font-size: 7px; letter-spacing: .25em; text-transform: uppercase; opacity: .65; }
+.ticket-title { font-family: 'Caveat', cursive; font-size: .95rem; font-weight: 600; }
+.ticket-row { font-size: 8px; letter-spacing: .22em; text-transform: uppercase; opacity: .7; }
+.ticket.is-torn .ticket-body { animation: ticket-shake .12s ease; }
+@keyframes ticket-shake {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(-4px) rotate(-1deg); }
+  100% { transform: translateX(2px); }
+}
+.ticket.is-torn .ticket-perf {
+  background: transparent;
+  border-left: 1px dashed rgba(80,55,25,.9);
+}
+.ticket.is-torn .ticket-stub {
+  transform: translateX(-14px) rotate(-4deg);
+  transition: transform var(--dur-med) var(--ease-soft);
+}
+/* Small "grip" notch on the stub to hint the tear gesture */
+.ticket-tear-hint {
+  position: absolute; left: 42%; top: 50%;
+  transform: translate(-50%,-50%);
+  width: 14px; height: 14px; border-radius: 50%;
+  background: rgba(80,55,25,.12);
+  pointer-events: none;
+  animation: tear-hint 3s ease-in-out infinite;
+}
+@keyframes tear-hint {
+  0%,100% { opacity:.3; transform: translate(-50%,-50%) scale(1); }
+  50%     { opacity:.7; transform: translate(-50%,-50%) scale(1.25); }
+}
+
+/* ─── JAR ────────────────────── */
+.jar-wrap { position: relative; width: 120px; height: 150px; }
+.jar {
+  width: 100%; height: 100%;
+  border-radius: 10px 10px 16px 16px;
+  background: linear-gradient(180deg,
+    rgba(100,140,160,.1) 0%, rgba(80,120,140,.18) 40%, rgba(60,100,120,.12) 100%);
+  border: 1.5px solid rgba(200,230,240,.15);
+  box-shadow:
+    inset 0 0 20px rgba(100,140,160,.14),
+    inset 0 2px 0 rgba(255,255,255,.12),
+    0 4px 12px rgba(0,0,0,.35);
+  position: relative;
+  transform-origin: 50% 100%;
+  transition: transform var(--dur-slow) var(--ease-soft);
+}
+.jar.is-tipped { transform: rotate(-45deg) translateY(-10px); }
+.jar-lid {
+  position: absolute; top: -6px; left: -4px; right: -4px; height: 14px;
+  background: linear-gradient(180deg, #3a2a1a 0%, #1a1108 100%);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.5);
+}
+/* Cork variant to match the reference PNG */
+.jar-cork {
+  position: absolute; top: -10px; left: 20%; right: 20%; height: 14px;
+  background:
+    linear-gradient(180deg, #c8965a 0%, #8a5e30 100%),
+    repeating-linear-gradient(30deg, rgba(0,0,0,.08) 0 1px, transparent 1px 3px);
+  border-radius: 3px 3px 2px 2px;
+  box-shadow: 0 2px 3px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.18);
+}
+.jar-label {
+  position: absolute; top: 38%; left: 12%; right: 12%;
+  background: #f0d89a; padding: 6px 4px; border-radius: 2px;
+  font-family: 'Special Elite', monospace;
+  font-size: 7px; letter-spacing: .15em;
+  color: #3a2820; text-transform: uppercase;
+  text-align: center; transform: rotate(-1.5deg);
+  box-shadow: 0 1px 2px rgba(0,0,0,.35);
+}
+.jar-matches {
+  position: absolute; bottom: 18px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 1px; align-items: flex-end;
+}
+.jar-match {
+  width: 2px;
+  background: linear-gradient(to bottom,
+    #d08858 0%, #c08050 4%, #f0d89a 5%, #f0d89a 100%);
+  opacity: .9;
+}
+.spilled {
+  position: absolute; bottom: -12px; right: -20px;
+  width: 200px; height: 80px; pointer-events: none;
+}
+.spilled-match {
+  position: absolute;
+  background: #f0d89a;
+  border-radius: 1px;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out),
+              transform var(--dur-med) var(--ease-soft);
+}
+.spilled-match .match-head {
+  position: absolute; top: -3px; left: -2px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: radial-gradient(circle, #d05838 0%, #a03820 80%);
+  pointer-events: auto; cursor: pointer;
+}
+/* Invisible tap-target enlarger — match heads are 6×6px,
+   below recommended 44×44px touch target minimum */
+.spilled-match .match-head::before {
+  content: '';
+  position: absolute;
+  inset: -18px;
+}
+
+/* ─── CAT ──────────────────── */
+.cat { width: 72px; height: 72px; position: relative; }
+.cat-body {
+  width: 100%; height: 100%;
+  background: radial-gradient(circle at 50% 60%, #2a1a14 0%, #120a08 100%);
+  border-radius: 50% 50% 40% 40% / 55% 55% 40% 40%;
+  position: relative;
+}
+.cat-ear {
+  position: absolute;
+  width: 0; height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 16px solid #2a1a14;
+  top: -4px;
+}
+.cat-ear-l { left: 6px; transform: rotate(-18deg); }
+.cat-ear-r { right: 6px; transform: rotate(18deg); }
+.cat-eye {
+  position: absolute; top: 34%;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #f0c858;
+  box-shadow: 0 0 4px rgba(240,200,88,.4);
+  transition: height 120ms var(--ease-out);
+}
+.cat-eye-l { left: 22px; }
+.cat-eye-r { right: 22px; }
+.cat-eye.is-blinking { height: 1px; }
+.cat-nose {
+  position: absolute; top: 46%; left: 50%;
+  transform: translateX(-50%);
+  width: 4px; height: 3px;
+  background: #d05878;
+  border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+}
+
+/* ─── HEARTBEAT MATCH ──────── */
+.hb-match { width: 50px; height: 90px; position: relative; }
+.hb-stick {
+  position: absolute; left: 50%; top: 0;
+  transform: translateX(-50%);
+  width: 3px; height: 100%;
+  background: linear-gradient(to bottom, #d0a858 0%, #b08840 100%);
+  border-radius: 2px;
+}
+.hb-head {
+  position: absolute; left: 50%; top: -2px;
+  transform: translateX(-50%);
+  width: 10px; height: 10px; border-radius: 50%;
+  background: radial-gradient(circle, #e04838 0%, #a02820 80%);
+}
+.hb-glow {
+  position: absolute; top: -12px; left: 50%;
+  transform: translateX(-50%);
+  width: 24px; height: 24px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(224,72,56,.5) 0%, transparent 70%);
+  opacity: 0;
+}
+.hb-glow.is-pulsing { animation: hb-pulse 1.2s var(--ease-out); }
+@keyframes hb-pulse {
+  0%   { opacity: 0; transform: translateX(-50%) scale(.8); }
+  30%  { opacity: .9; transform: translateX(-50%) scale(1.1); }
+  100% { opacity: 0; transform: translateX(-50%) scale(1.4); }
+}
+
+/* ─── RECEIPT ───────────────── */
+.receipt {
+  width: 130px; min-height: 160px;
+  background: #f5e8c5;
+  box-shadow: 0 3px 10px rgba(0,0,0,.4);
+  padding: 14px 10px 16px;
+  color: #3a2820;
+  font-family: 'Special Elite', monospace;
+  font-size: 9px; letter-spacing: .05em;
+  line-height: 1.6;
+  position: relative;
+}
+.receipt-head { text-align: center; font-size: 11px; letter-spacing: .15em; margin-bottom: 8px; }
+.receipt-div { border-top: 1px dashed rgba(58,40,32,.4); margin: 6px 0; }
+.receipt-row { display: flex; justify-content: space-between; }
+
+/* ─── POLAROID (dog + cat) ────── */
+.polaroid {
+  width: 130px; height: 150px;
+  background: #f5ead0;
+  padding: 8px 8px 22px;
+  box-shadow:
+    0 8px 22px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(255,255,255,.3);
+  position: relative;
+  transform-origin: 50% 50%;
+  transition: transform var(--dur-med) var(--ease-soft),
+              box-shadow var(--dur-med) var(--ease-soft);
+}
+.polaroid.is-flipped {
+  transform: rotateY(180deg);
+}
+.polaroid-inner {
+  width: 100%; height: 110px;
+  border-radius: 1px;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 35% 55%, #a89070 0%, #5a3828 55%, #2a1810 100%);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.35);
+}
+/* Dog silhouette (left) */
+.polaroid-dog {
+  position: absolute; left: 8%; bottom: 8%;
+  width: 38%; height: 70%;
+  background:
+    radial-gradient(ellipse at 50% 40%, #b89070 0%, #704028 80%);
+  border-radius: 40% 45% 30% 30% / 45% 50% 35% 35%;
+}
+.polaroid-dog::before {
+  content:''; position:absolute; left:20%; top:-14%;
+  width:60%; height:36%;
+  background: radial-gradient(ellipse, #a88060 0%, #604028 90%);
+  border-radius: 50% 50% 20% 20%;
+}
+.polaroid-dog::after {
+  content:''; position:absolute; left:30%; top:8%;
+  width:10%; height:10%; border-radius:50%;
+  background:#0a0604;
+}
+/* Cat silhouette (right, black) */
+.polaroid-cat {
+  position: absolute; right: 10%; bottom: 6%;
+  width: 34%; height: 60%;
+  background: radial-gradient(ellipse at 50% 60%, #1a1208 0%, #000 100%);
+  border-radius: 40% 40% 25% 25% / 50% 50% 30% 30%;
+}
+.polaroid-cat::before {
+  content:''; position:absolute; left:10%; top:-10%;
+  width:80%; height:40%;
+  background:#0a0604;
+  border-radius: 40% 40% 20% 20%;
+}
+.polaroid-cat::after {
+  content:''; position:absolute; left:30%; top:10%;
+  width:8%; height:8%; border-radius:50%;
+  background:#e8c840;
+  box-shadow: 18px 0 0 #e8c840;
+}
+.polaroid-heart {
+  position: absolute; top: 6px; right: 8px;
+  width: 14px; height: 14px;
+  color: #a04050;
+  opacity: .75;
+}
+.polaroid-caption {
+  position: absolute; left: 0; right: 0; bottom: 4px;
+  text-align: center;
+  font-family: 'Homemade Apple', 'Caveat', cursive;
+  font-size: .7rem;
+  color: #4a3020;
+  opacity: .85;
+}
+.polaroid-back {
+  position: absolute; inset: 0;
+  background: #f0e2c0;
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
+  padding: 14px 12px;
+  font-family: 'Homemade Apple', cursive;
+  font-size: .72rem;
+  color: #3a2820;
+  line-height: 1.7;
+  text-align: center;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+}
+.polaroid { transform-style: preserve-3d; }
+.polaroid-front, .polaroid-back { backface-visibility: hidden; }
+.polaroid-front {
+  width: 100%; height: 100%;
+  padding: 8px 8px 22px;
+  background: #f5ead0;
+}
+.polaroid.is-flipped .polaroid-front { visibility: hidden; transition: visibility 0s linear 300ms; }
+
+/* ─── FLAME ────────────────── */
+.flame {
+  position: fixed; pointer-events: none;
+  z-index: 9400; opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.flame.is-on { opacity: 1; }
+.flame-glow {
+  position: absolute; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,180,60,.55) 0%, transparent 70%);
+  animation: flame-flicker .2s ease-in-out infinite alternate;
+}
+.flame-svg {
+  position: relative; z-index: 2;
+  animation: flame-dance .15s steps(3) infinite;
+}
+@keyframes flame-flicker {
+  0%   { transform: scale(1) translate(0,0); }
+  100% { transform: scale(1.06) translate(1px,-1px); }
+}
+@keyframes flame-dance {
+  0%,100% { transform: translate(0,0) scaleY(1); }
+  33%     { transform: translate(-1px,-1px) scaleY(1.05); }
+  66%     { transform: translate(1px,0) scaleY(.97); }
+}
+.flame-word {
+  position: fixed; pointer-events: none; z-index: 9500;
+  font-family: 'Caveat', cursive;
+  font-size: 1.2rem;
+  color: rgba(255,200,120,.85);
+  text-shadow: 0 0 8px rgba(255,140,60,.6);
+  animation: word-float 1.9s var(--ease-out) forwards;
+}
+@keyframes word-float {
+  0%   { opacity: 0; transform: translate(-50%, 0) scale(.9); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -70px) scale(1); }
+}
+
+/* ─── DECORATIVE SCATTER (loose + burnt matches) ── */
+.scatter {
+  position: fixed; inset: 0; z-index: 5;
+  pointer-events: none;
+}
+.scatter-match {
+  position: absolute;
+  width: 2.5px; height: 40px;
+  background: linear-gradient(to bottom,
+    var(--hd, #1a100a) 0 14%,
+    #e8d49a 14% 100%);
+  border-radius: 1px;
+  opacity: .55;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.5));
+  transform-origin: 50% 100%;
+}
+.scatter-match.burnt {
+  --hd: #0a0604;
+  opacity: .45;
+}
+.scatter-match.burnt::before {
+  content: ''; position: absolute;
+  left: -2.5px; top: -3px;
+  width: 7px; height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #1a0a04 30%, rgba(20,10,4,0) 75%);
+}
+
+/* ─── NOTE MODAL ──────────── */
+.note-modal {
+  position: fixed; inset: 0;
+  background: rgba(10,6,4,.92);
+  z-index: 9500;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--dur-slow) var(--ease-out);
+  padding: var(--s-6);
+}
+.note-modal.is-open { opacity: 1; pointer-events: all; }
+.note-paper {
+  background: #f5e8c5;
+  padding: var(--s-7) var(--s-7) var(--s-6);
+  max-width: 480px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.7);
+  position: relative;
+  transform: rotate(-.8deg) scale(.96);
+  opacity: 0;
+  transition:
+    transform 700ms var(--ease-soft),
+    opacity 600ms var(--ease-out);
+}
+.note-modal.is-open .note-paper {
+  transform: rotate(-.8deg) scale(1);
+  opacity: 1;
+  transition-delay: 200ms;
+}
+.note-paper::before {
+  content: '';
+  position: absolute; top: 14px; left: 22px;
+  width: 50px; height: 20px;
+  background: rgba(200,160,100,.35);
+  transform: rotate(-6deg);
+  box-shadow: 0 1px 3px rgba(0,0,0,.18);
+}
+.note-close {
+  position: absolute; top: 4px; right: 6px;
+  font-family: 'Special Elite', monospace;
+  font-size: 10px; letter-spacing: .2em;
+  color: rgba(58,40,32,.55);
+  text-transform: uppercase;
+  /* Expand tap target to ~44px without changing visual appearance */
+  padding: 10px 12px;
+}
+.note-close:hover, .note-close:focus-visible {
+  color: #3a2820;
+  outline: 2px solid rgba(58,40,32,.4);
+  outline-offset: 2px;
+}
+.note-text {
+  font-family: 'Homemade Apple', 'Caveat', cursive;
+  font-size: clamp(.92rem, 2.4vw, 1.1rem);
+  color: #3a2820;
+  line-height: 2.1;
+}
+.note-sig {
+  font-family: 'Caveat', cursive;
+  font-size: 1.3rem;
+  color: #3a2820;
+  text-align: right;
+  margin-top: var(--s-5);
+  font-weight: 600;
+}
+
+/* Screen-reader live region for flame words */
+.sr-live {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ─── HINT ──────────────── */
+.hint-text {
+  position: fixed; bottom: var(--s-5); left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Special Elite', monospace;
+  font-size: 9px; letter-spacing: .32em;
+  color: rgba(245,232,208,.3);
+  text-transform: uppercase;
+  z-index: 50; pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+  animation: hint-bob 3s ease-in-out infinite;
+}
+.hint-text.is-on { opacity: 1; }
+@keyframes hint-bob {
+  0%, 100% { opacity: .3; }
+  50%      { opacity: .55; }
+}
+
+/* ─── SOUND BUTTON ────────── */
+.sound-btn {
+  position: fixed; bottom: var(--s-5); right: var(--s-5);
+  z-index: 60;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(245,232,208,.06);
+  border: 1px solid rgba(245,232,208,.15);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(245,232,208,.5);
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.sound-btn:hover, .sound-btn:focus-visible {
+  background: rgba(245,232,208,.12);
+  border-color: rgba(245,232,208,.3);
+  color: rgba(245,232,208,.9);
+}
+.sound-btn.is-on {
+  background: rgba(245,232,208,.18);
+  border-color: rgba(245,232,208,.4);
+  color: rgba(245,232,208,1);
+}
+.sound-btn svg { width: 15px; height: 15px; opacity: .75; }
+
+/* ─── RESET BUTTON ─────── */
+.reset-btn {
+  position: fixed; bottom: var(--s-5); right: calc(var(--s-5) + 48px);
+  z-index: 60;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(245,232,208,.06);
+  border: 1px solid rgba(245,232,208,.15);
+  color: rgba(245,232,208,.5);
+  font-family: 'Special Elite', monospace;
+  font-size: 9px;
+  letter-spacing: .1em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-med) var(--ease-out),
+              background var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out);
+}
+.reset-btn.is-visible { opacity: 1; pointer-events: auto; }
+.reset-btn:hover, .reset-btn:focus-visible {
+  background: rgba(245,232,208,.12);
+  color: rgba(245,232,208,.9);
+}
+
+@media (max-width: 640px) {
+  .matchbox { width: 128px; height: 56px; }
+  .ticket { width: 150px; height: 56px; }
+  .jar-wrap { width: 92px; height: 120px; }
+  .cat { width: 58px; height: 58px; }
+  .hb-match { width: 40px; height: 70px; }
+  .receipt { width: 104px; min-height: 140px; }
+  .polaroid { width: 110px; height: 128px; }
+  .mb-title { font-size: .95rem; margin-top: 10px; }
+  .mb-label { font-size: 8px; bottom: 7px; }
+}
+@media (max-width: 420px) {
+  .matchbox { width: 108px; height: 50px; }
+  .polaroid { width: 96px; height: 112px; }
+  .jar-wrap { width: 78px; height: 104px; }
+  .ticket { width: 128px; height: 50px; }
+}
+
+/* ─── MOBILE: scrollable stacked layout ─── */
+@media (hover: none) and (max-width: 900px) {
+  body { overflow-x: hidden; overflow-y: auto; cursor: auto; }
+
+  /* Disable the swaying table-light animation — it's a fixed bg element
+     with no visual effect in flow layout but still consumes GPU */
+  .table-light { animation: none; }
+
+  /* Switch scene from fixed to flow */
+  .scene {
+    position: relative;
+    inset: auto;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5rem var(--s-5) 6rem;
+    gap: var(--s-6);
+    touch-action: auto;
+  }
+
+  /* Reset all absolute positioning on objects to flow layout */
+  .obj {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    rotate: none !important;
+    transform: none !important;
+    cursor: pointer;
+    touch-action: auto;
+  }
+  .obj:active { transform: scale(0.97) !important; }
+
+  /* Labels always visible on mobile */
+  .obj-label {
+    opacity: 1;
+    position: relative;
+    top: auto; left: auto;
+    transform: none;
+    text-align: center;
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* Matchbox fixed size on mobile */
+  .matchbox { width: 150px; height: 68px; }
+
+  /* Hide the fixed scatter (decorative, overlaps content in flow) */
+  .scatter { display: none; }
+
+  /* Focus-dim is designed for fixed-layout — disable in flow */
+  .focus-dim { display: none; }
+
+  /* Fixed UI buttons: apply safe-area insets */
+  .reset-btn {
+    bottom: calc(var(--s-5) + env(safe-area-inset-bottom, 0px));
+    right: calc(var(--s-5) + 48px + env(safe-area-inset-right, 0px));
+  }
+  .sound-btn {
+    bottom: calc(var(--s-5) + env(safe-area-inset-bottom, 0px));
+    right: calc(var(--s-5) + env(safe-area-inset-right, 0px));
+  }
+
+  /* Hint text — keep fixed but account for safe-area */
+  .hint-text {
+    bottom: calc(var(--s-5) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .obj.is-breathing,
+  .ticket-tear-hint,
+  .table-light { animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="page-overlay" aria-hidden="true"></div>
+
+<!-- Opening -->
+<div class="opening" id="opening" aria-hidden="true">
+  <div>
+    <p class="opening-line" id="openLine">
+      a small table.<br>a smaller collection.<br>all of it<br><em>addressed to you.</em>
+    </p>
+    <p class="opening-sub" id="openSub">touch · drag · explore</p>
+  </div>
+</div>
+
+<button class="back-btn" data-action="back" data-href="index.html"
+        aria-label="Back to collection">
+  <span class="back-arrow" aria-hidden="true"></span>back
+</button>
+
+<button class="reset-btn" id="resetBtn" aria-label="Restore the table to its original arrangement">reset</button>
+
+<button class="sound-btn" id="soundBtn" aria-label="Toggle ambient sound" aria-pressed="false">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+    <path d="M3 10v4h3l5 4V6L6 10H3z"/>
+    <path d="M15 9a4 4 0 010 6"/>
+    <path d="M17.5 6.5a7 7 0 010 11" opacity=".6"/>
+  </svg>
+</button>
+
+<div class="table" aria-hidden="true"></div>
+<div class="table-vign" aria-hidden="true"></div>
+<div class="table-light" aria-hidden="true"></div>
+
+<!-- Focus dimming layer for peak moments -->
+<div class="focus-dim" id="focusDim" aria-hidden="true"></div>
+
+<!-- Decorative scattered matches (non-interactive, below scene) -->
+<div class="scatter" id="scatter" aria-hidden="true">
+  <span class="scatter-match" style="left:14%; top:48%; transform:rotate(18deg);"></span>
+  <span class="scatter-match" style="left:17%; top:51%; transform:rotate(-22deg);"></span>
+  <span class="scatter-match" style="left:12%; top:53%; transform:rotate(48deg);"></span>
+  <span class="scatter-match burnt" style="left:72%; top:68%; transform:rotate(72deg);"></span>
+  <span class="scatter-match burnt" style="left:75%; top:70%; transform:rotate(52deg);"></span>
+  <span class="scatter-match" style="left:58%; top:16%; transform:rotate(-34deg); opacity:.38;"></span>
+</div>
+
+<!-- Screen reader live region -->
+<div class="sr-live" id="srLive" aria-live="polite" aria-atomic="true"></div>
+
+<main class="scene" id="main" aria-label="Our table — drag and interact with objects">
+  <h1 class="sr-only">Our Table — a collection of small things, each addressed to you</h1>
+
+  <!-- Est. matchbox -->
+  <div class="obj" id="obj-est" data-layer="1.2" data-draggable
+       style="left: 6%; top: 20%; rotate: -4deg;"
+       tabindex="0" role="group" aria-label="A small matchbox: est. June 21, 2023. Click cover to slide open.">
+    <div class="matchbox" data-toggle>
+      <div class="mb-tray">
+        <div class="mb-tray-matches" style="--match-head:#1a0804;" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="mb-tray-inner">june · 21<br>2023 — now</div>
+      </div>
+      <div class="mb-cover cover-est" style="--mb-col1:#f5ead0;--mb-col2:#e8d9b2;--mb-label-color:#3a2820;">
+        <span class="mb-title" style="color:#3a2820;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.95rem;">est.<br><span style="font-size:.8rem">June 21, 2023</span></span>
+        <svg class="mb-tulip" viewBox="0 0 40 32" aria-hidden="true">
+          <g stroke="#3a6a30" stroke-width="1" fill="none">
+            <path d="M20 30 L20 14"/>
+            <path d="M20 24 L14 20"/>
+            <path d="M20 22 L26 18"/>
+          </g>
+          <ellipse cx="16" cy="10" rx="3.2" ry="5.2" fill="#e06080"/>
+          <ellipse cx="20" cy="7"  rx="3.2" ry="5.5" fill="#e8708a"/>
+          <ellipse cx="24" cy="10" rx="3.2" ry="5.2" fill="#e06080"/>
+        </svg>
+      </div>
+    </div>
+    <span class="obj-label">est. — june 21, 2023</span>
+  </div>
+
+  <!-- Gold Coca-Cola matchbook (NEW) -->
+  <div class="obj" id="obj-cola" data-layer="1" data-draggable
+       style="left: 32%; top: 8%; rotate: 2deg;"
+       tabindex="0" role="group" aria-label="A gold matchbook with a Coca-Cola can and coffee cup. Click to open.">
+    <div class="matchbox" data-toggle style="width:128px;height:78px;">
+      <div class="mb-tray">
+        <div class="mb-tray-matches" style="--match-head:#2a1a0e;" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+        <div class="mb-tray-inner">one cola · one coffee<br>every time</div>
+      </div>
+      <div class="mb-cover cover-cola">
+        <div class="cola-can" aria-hidden="true"></div>
+        <div class="cola-cup" aria-hidden="true"></div>
+        <span class="mb-label" style="color:#3a2208;font-weight:bold;">cola · café · us</span>
+      </div>
+    </div>
+    <span class="obj-label">what we order</span>
+  </div>
+
+  <!-- Cinema ticket matchbox NOTE: original is separate ticket obj; this is the striped cinema-matchbox from PNG -->
+  <!-- Mac matchbox -->
+  <div class="obj" id="obj-mac" data-layer="1.1" data-draggable
+       style="left: 72%; top: 10%; rotate: 5deg;"
+       tabindex="0" role="group" aria-label="A Mac DeMarco matchbox: My Kind of Woman. Click cover to open.">
+    <div class="matchbox" data-toggle>
+      <div class="mb-tray">
+        <div class="mb-tray-matches" style="--match-head:#6a3818;" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="mb-tray-inner">my kind<br>of woman</div>
+      </div>
+      <div class="mb-cover cover-mac">
+        <div class="mb-album" aria-hidden="true"></div>
+        <span class="mb-title" style="color:#3a2820;font-size:.8rem;margin-top:10px;letter-spacing:.05em;">MY KIND OF WOMAN</span>
+        <span class="mb-label" style="color:rgba(58,40,32,.7);font-size:7px;">mac demarco · playlist</span>
+      </div>
+    </div>
+    <span class="obj-label">my kind of woman</span>
+  </div>
+
+  <!-- Brew matchbox -->
+  <div class="obj" id="obj-brew" data-layer=".9" data-draggable
+       style="left: 30%; top: 32%; rotate: -3deg;"
+       tabindex="0" role="group" aria-label="A Brewleaf Café matchbook. Click cover to open.">
+    <div class="matchbox" data-toggle style="width:130px;height:92px;">
+      <div class="mb-tray">
+        <div class="mb-tray-matches" style="--match-head:#3a2a1a;" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+        <div class="mb-tray-inner">every café<br>every order · mine</div>
+      </div>
+      <div class="mb-cover cover-brew">
+        <div class="mb-brew-stamp" aria-hidden="true">BREWLEAF<br>CAFÉ<br>· EST 2021 ·</div>
+        <span class="mb-label" style="color:rgba(90,60,30,.75);">café log · our coffees</span>
+      </div>
+    </div>
+    <span class="obj-label">coffee receipts</span>
+  </div>
+
+  <!-- Red Ribbon matchbox (NEW) -->
+  <div class="obj" id="obj-ribbon" data-layer="1" data-draggable
+       style="left: 70%; top: 30%; rotate: 3deg;"
+       tabindex="0" role="group" aria-label="A Red Ribbon bakery matchbox — our late-night cake runs. Click to open.">
+    <div class="matchbox" data-toggle>
+      <div class="mb-tray">
+        <div class="mb-tray-matches" style="--match-head:#a02010;" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="mb-tray-inner">black forest<br>and one fork</div>
+      </div>
+      <div class="mb-cover cover-ribbon">
+        <span class="rr-banner">Red Ribbon</span>
+        <span class="mb-label" style="color:rgba(120,40,20,.55);margin-top:4px;">late night · cake runs</span>
+      </div>
+    </div>
+    <span class="obj-label">our cake runs</span>
+  </div>
+
+  <!-- Snack matchbox (NEW — Chocnut / green box) -->
+  <div class="obj" id="obj-snack" data-layer=".95" data-draggable
+       style="left: 74%; top: 48%; rotate: -4deg;"
+       tabindex="0" role="group" aria-label="A green snack matchbox — Chocnut and Boy Bawang. Click to open.">
+    <div class="matchbox" data-toggle>
+      <div class="mb-tray">
+        <div class="mb-tray-matches" style="--match-head:#f5e8c5;" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="mb-tray-inner">the snacks<br>we split in the car</div>
+      </div>
+      <div class="mb-cover cover-snack">
+        <div class="snack-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+        <span class="mb-label">chocnut · boy bawang · us</span>
+      </div>
+    </div>
+    <span class="obj-label">car snacks</span>
+  </div>
+
+  <!-- Ticket -->
+  <div class="obj" id="obj-ticket" data-layer=".95" data-draggable
+       style="left: 8%; top: 45%; rotate: 3deg;"
+       tabindex="0" role="group" aria-label="A cinema ticket. Double-tap or hold and tear the stub to the left. Drag to reposition.">
+    <div class="ticket" id="ticket">
+      <div class="ticket-body">
+        <div class="ticket-perf" aria-hidden="true"></div>
+        <div class="ticket-tear-hint" aria-hidden="true"></div>
+        <div class="ticket-stub" data-tear-zone>
+          <span class="ticket-stub-num">07</span>
+          <span class="ticket-stub-sub">seat</span>
+        </div>
+        <div class="ticket-main">
+          <div class="ticket-title">our movie night</div>
+          <div class="ticket-row">june · forever</div>
+          <div class="ticket-row">adm: <strong>2</strong></div>
+        </div>
+      </div>
+    </div>
+    <span class="obj-label">cinema ticket · tear the stub</span>
+  </div>
+
+  <!-- Jar -->
+  <div class="obj" id="obj-jar" data-layer="1.05" data-draggable
+       style="left: 48%; top: 30%; rotate: -2deg;"
+       tabindex="0" role="group" aria-label="A glass jar of matches. Double-click to tip and spill. Drag to reposition.">
+    <div class="jar-wrap" data-tap="jar">
+      <div class="jar" id="jar">
+        <div class="jar-cork" aria-hidden="true"></div>
+        <div class="jar-label">memories</div>
+        <div class="jar-matches" aria-hidden="true">
+          <span class="jar-match" style="height:68px"></span>
+          <span class="jar-match" style="height:74px"></span>
+          <span class="jar-match" style="height:64px"></span>
+          <span class="jar-match" style="height:70px"></span>
+          <span class="jar-match" style="height:78px"></span>
+          <span class="jar-match" style="height:72px"></span>
+          <span class="jar-match" style="height:66px"></span>
+          <span class="jar-match" style="height:76px"></span>
+        </div>
+      </div>
+      <div class="spilled" id="spilled" aria-hidden="true"></div>
+    </div>
+    <span class="obj-label">memory jar · double-tap to spill</span>
+  </div>
+
+  <!-- Polaroid (dog + cat) — NEW, emotional anchor -->
+  <div class="obj" id="obj-polaroid" data-layer=".95" data-draggable
+       style="left: 36%; top: 52%; rotate: -6deg;"
+       tabindex="0" role="group" aria-label="A polaroid of a dog and a black cat together, with a heart. Double-click to flip and read the back.">
+    <div class="polaroid" id="polaroid" data-tap="polaroid">
+      <div class="polaroid-front">
+        <div class="polaroid-inner" aria-hidden="true">
+          <div class="polaroid-dog"></div>
+          <div class="polaroid-cat"></div>
+          <svg class="polaroid-heart" viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M10 17 C3 12 2 7 5 4 C7 2 10 3 10 6 C10 3 13 2 15 4 C18 7 17 12 10 17 Z"
+                  fill="currentColor" stroke="currentColor" stroke-width=".5"/>
+          </svg>
+        </div>
+        <div class="polaroid-caption">you + me, june</div>
+      </div>
+      <div class="polaroid-back" aria-label="back of polaroid">
+        <br>
+        "two different animals,<br>
+        somehow · the same house."<br><br>
+        <span style="font-family:'Caveat',cursive;font-size:1rem;">— j &amp; c</span>
+      </div>
+    </div>
+    <span class="obj-label">us · polaroid · flip</span>
+  </div>
+
+  <!-- Cat -->
+  <div class="obj" id="obj-cat" data-layer=".85" data-draggable
+       style="left: 6%; top: 78%; rotate: -2deg;"
+       tabindex="0" role="group" aria-label="A small black cat, blinking slowly">
+    <div class="cat">
+      <div class="cat-body">
+        <div class="cat-ear cat-ear-l" aria-hidden="true"></div>
+        <div class="cat-ear cat-ear-r" aria-hidden="true"></div>
+        <div class="cat-eye cat-eye-l" id="cat-eye-l" aria-hidden="true"></div>
+        <div class="cat-eye cat-eye-r" id="cat-eye-r" aria-hidden="true"></div>
+        <div class="cat-nose" aria-hidden="true"></div>
+      </div>
+    </div>
+    <span class="obj-label">the cat you love</span>
+  </div>
+
+  <!-- Heartbeat -->
+  <div class="obj" id="obj-hb" data-layer=".8" data-draggable
+       style="left: 82%; top: 78%; rotate: 8deg;"
+       tabindex="0" role="group" aria-label="A match that pulses, slowly, like a heartbeat">
+    <div class="hb-match">
+      <div class="hb-glow" id="hb-glow" aria-hidden="true"></div>
+      <div class="hb-stick" aria-hidden="true"></div>
+      <div class="hb-head" aria-hidden="true"></div>
+    </div>
+    <span class="obj-label">still beating</span>
+  </div>
+
+  <!-- Love matchbox (strike) — no longer uses horizontal-only drag as strike;
+       strike now requires a dedicated "strip" at the bottom of the box -->
+  <div class="obj" id="obj-love" data-layer="1.1" data-draggable
+       style="left: 20%; top: 70%; rotate: -6deg;"
+       tabindex="0" role="group" aria-label="The I love you more matchbook. Drag the red strip across its striker to light it. Drag the whole box elsewhere to reposition.">
+    <div class="matchbox" id="mb-love" style="width:140px;height:78px;">
+      <div class="mb-tray">
+        <div class="mb-tray-matches" style="--match-head:#701818;" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="mb-tray-inner">no, I<br>love YOU · more</div>
+      </div>
+      <div class="mb-cover" style="--mb-col1:#5a3020;--mb-col2:#3a1c12;">
+        <span class="mb-title" style="color:#f5ead0;font-style:italic;font-family:'Cormorant Garamond',serif;font-size:1rem;letter-spacing:.02em;">I love you more</span>
+        <!-- striker strip — dedicated strike target -->
+        <div id="loveStriker" data-strike
+             style="position:absolute;left:10px;right:10px;bottom:8px;height:12px;
+                    background: repeating-linear-gradient(90deg,
+                      rgba(0,0,0,.55) 0 2px, rgba(180,80,40,.8) 2px 4px);
+                    border-radius: 2px;
+                    cursor: ew-resize;
+                    box-shadow: inset 0 1px 0 rgba(255,255,255,.12);"
+             aria-label="striker strip — drag a match across to light">
+        </div>
+      </div>
+    </div>
+    <span class="obj-label">i love you more · drag across the strip</span>
+  </div>
+
+  <!-- J+C (note trigger) — emotional focal point -->
+  <button class="obj is-breathing" id="obj-jc" data-layer="1.15" type="button"
+          style="left: 50%; top: 62%; rotate: 2deg; background: transparent; border: none; padding: 0; transform-origin: center;"
+          aria-label="J plus C — a small matchbox containing a letter for you. Press to read.">
+    <div class="matchbox" style="width:150px;height:96px;">
+      <div class="mb-tray">
+        <div class="mb-tray-matches" style="--match-head:#5a3820;" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+        <div class="mb-tray-inner">you found<br>the letter</div>
+      </div>
+      <div class="mb-cover" style="--mb-col1:#f5ead0;--mb-col2:#e8d9b2;">
+        <span class="mb-title" style="color:#3a2820;font-family:'Homemade Apple',cursive;font-size:1.4rem;letter-spacing:.02em;margin-top:22px;">J + C</span>
+        <!-- tiny pumpkin sticker -->
+        <svg aria-hidden="true" viewBox="0 0 20 20" style="position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:14px;height:14px;opacity:.85;">
+          <ellipse cx="10" cy="12" rx="7" ry="5.5" fill="#d86818"/>
+          <path d="M10 6 v2" stroke="#3a6020" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M10 7 c1 -1 2 -1 2 -2" stroke="#3a6020" stroke-width="1" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <span class="obj-label">j + c · a letter</span>
+  </button>
+
+  <!-- Receipt -->
+  <div class="obj" id="obj-receipt" data-layer=".9" data-draggable
+       style="left: 88%; top: 55%; rotate: -8deg;"
+       tabindex="0" role="group" aria-label="A café receipt, kept">
+    <div class="receipt">
+      <div class="receipt-head">— CAFÉ 21 —</div>
+      <div class="receipt-row"><span>date</span><span>june 21</span></div>
+      <div class="receipt-row"><span>pax</span><span>2</span></div>
+      <div class="receipt-div"></div>
+      <div class="receipt-row"><span>your order</span><span>— —</span></div>
+      <div class="receipt-row"><span>mine</span><span>— —</span></div>
+      <div class="receipt-div"></div>
+      <div style="text-align:center;font-size:7px;letter-spacing:.2em;margin-top:6px;">total: forever</div>
+    </div>
+    <span class="obj-label">your order / mine</span>
+  </div>
+
+</main>
+
+<!-- Flame -->
+<div class="flame" id="globalFlame" aria-hidden="true">
+  <div class="flame-glow" style="width:40px;height:40px;top:-20px;left:-12px;"></div>
+  <svg class="flame-svg" viewBox="0 0 20 30" width="20" height="30">
+    <defs>
+      <radialGradient id="fg" cx="50%" cy="80%" r="60%">
+        <stop offset="0%"  stop-color="#fff8c0"/>
+        <stop offset="40%" stop-color="#ff9020"/>
+        <stop offset="100%" stop-color="rgba(200,40,0,0)"/>
+      </radialGradient>
+    </defs>
+    <path d="M10 28 C4 22 2 16 5 10 C7 6 9 4 10 0 C11 4 13 8 14 14 C16 8 14 4 12 0 C18 6 18 14 15 20 C17 16 16 12 14 10 C14 18 12 24 10 28Z" fill="url(#fg)"/>
+  </svg>
+</div>
+
+<!-- Note modal -->
+<div class="note-modal" id="noteModal" role="dialog" aria-modal="true"
+     aria-labelledby="noteLabel" aria-hidden="true">
+  <div class="note-paper">
+    <button class="note-close" data-close aria-label="Close the note">close ×</button>
+    <p id="noteLabel" class="sr-only">A note from Jay</p>
+    <div class="note-text">
+      you found it.<br><br>
+      i made this because i didn't know<br>
+      how else to say that some songs<br>
+      will always sound like you now,<br>
+      and i'm not sorry about it.<br><br>
+      this box is addressed to you.<br>
+      it was always going to be.
+    </div>
+    <div class="note-sig">— Jay</div>
+  </div>
+</div>
+
+<p class="hint-text" id="hintText">touch · drag · explore</p>
+
+<script src="shared.js"></script>
+<script src="matchbox.js"></script>
+</body>
+</html>

@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050608">
+<title>for Czarina — Vol. VI · The Neighbourhood</title>
+<meta name="description" content="Vol. VI — The Neighbourhood. Late night, black & white.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,200;0,300;1,200&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   VOL VI — THE NEIGHBOURHOOD · late night, black & white
+═══════════════════════════════════════════════════════════ */
+:root {
+  --bg: #050608;
+  --ink: #e8eef5;
+  --ink-soft: rgba(232,238,245,.75);
+  --ink-faint: rgba(232,238,245,.35);
+  --accent: rgba(200,220,255,.9);
+  --focus-color: rgba(232,238,245,.9);
+  --cursor-bg: rgba(255,255,255,.55);
+  --cursor-bg-hover: rgba(255,255,255,.9);
+  --cursor-ring-color: rgba(255,255,255,.2);
+  --cursor-ring-hover: rgba(255,255,255,.45);
+  --preloader-bg: #050608;
+  --preloader-accent: rgba(255,255,255,.3);
+  --overlay-bg: #050608;
+  --back-color: rgba(255,255,255,.4);
+  --back-color-hover: rgba(255,255,255,.9);
+  --grain-opacity: .32;
+  --grain-mix: screen;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  font-weight: 300;
+}
+
+/* ─── SCANLINES (over everything except UI) ─── */
+.scanlines {
+  position: fixed; inset: 0; z-index: 9988;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg,
+    rgba(0,0,0,.15) 0px, rgba(0,0,0,.15) 1px,
+    transparent 1px, transparent 3px);
+  mix-blend-mode: multiply;
+}
+
+/* ─── HERO ───────────────────────── */
+.glitch-wrap { position: relative; }
+.hero {
+  position: relative; z-index: 1;
+  width: 100%;
+  height: 100vh;
+  min-height: 540px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.hero-bg { position: absolute; inset: 0; }
+.hero-bg img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%) contrast(1.2) brightness(.32);
+  transform: scale(1.03);
+  transition: transform 3s var(--ease-out);
+}
+.hero:hover .hero-bg img { transform: scale(1); }
+.hero-bg-fallback {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 50%, #1a1e26 0%, #050608 80%);
+}
+.hero-vign {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 60%, transparent 30%, rgba(0,0,0,.85) 100%),
+    linear-gradient(to bottom, rgba(5,6,8,.25) 0%, rgba(5,6,8,.9) 100%);
+}
+.hero-artifact {
+  position: absolute; left: 0; right: 0;
+  height: 1px;
+  background: rgba(255,255,255,.05);
+  pointer-events: none;
+}
+.hero-artifact:nth-of-type(1) { top: 34%; }
+.hero-artifact:nth-of-type(2) { bottom: 26%; opacity: .7; }
+
+.hero-content {
+  position: relative; z-index: 3;
+  text-align: left;
+  padding: 0 var(--s-7);
+  max-width: 940px;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 1.2s var(--ease-out), transform 1.2s var(--ease-out);
+}
+.hero-content.is-on { opacity: 1; transform: translateY(0); }
+
+.hero-eyebrow {
+  font-size: 10px;
+  font-weight: 200;
+  letter-spacing: .5em;
+  color: rgba(255,255,255,.42);
+  text-transform: uppercase;
+  margin-bottom: var(--s-5);
+}
+.hero-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400;
+  font-size: clamp(3rem, 14vw, 8rem);
+  letter-spacing: -.015em;
+  line-height: .88;
+  color: rgba(255,255,255,.98);
+  margin: 0;
+}
+.glitch {
+  position: relative;
+  display: inline-block;
+}
+.glitch::before, .glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+}
+.glitch::before {
+  color: rgba(80,220,255,.55);
+  transform: translate(-2px, 0);
+  clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+  animation: glitch-a 4.5s steps(6) infinite;
+}
+.glitch::after {
+  color: rgba(255,60,100,.55);
+  transform: translate(2px, 0);
+  clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+  animation: glitch-b 4.5s steps(6) infinite reverse;
+}
+@keyframes glitch-a {
+  0%, 85%, 100% { transform: translate(0, 0); opacity: 0; }
+  87%           { transform: translate(-3px, 1px); opacity: .7; }
+  89%           { transform: translate(2px, -1px); opacity: .8; }
+  91%           { transform: translate(-2px, 0); opacity: .5; }
+  93%           { transform: translate(0, 0); opacity: 0; }
+}
+@keyframes glitch-b {
+  0%, 85%, 100% { transform: translate(0, 0); opacity: 0; }
+  87%           { transform: translate(3px, -1px); opacity: .7; }
+  89%           { transform: translate(-2px, 1px); opacity: .8; }
+  91%           { transform: translate(1px, 0); opacity: .5; }
+  93%           { transform: translate(0, 0); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glitch::before, .glitch::after { display: none; }
+}
+
+.hero-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem;
+  letter-spacing: .45em;
+  color: rgba(255,255,255,.38);
+  text-transform: uppercase;
+  margin-top: var(--s-5);
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: var(--s-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+  animation: scroll-bob 3s ease-in-out infinite;
+}
+.scroll-hint.is-on { opacity: 1; }
+.scroll-hint span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: .4em;
+  color: rgba(255,255,255,.4);
+  text-transform: uppercase;
+}
+.scroll-line {
+  width: 1px; height: 28px;
+  background: linear-gradient(to bottom, rgba(255,255,255,.4), transparent);
+}
+@keyframes scroll-bob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(6px); }
+}
+
+/* ─── CONTENT ─── */
+.content { position: relative; z-index: 10; padding-bottom: var(--s-9); }
+.sec-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .66rem;
+  letter-spacing: .4em;
+  color: rgba(255,255,255,.32);
+  text-transform: uppercase;
+  padding: 0 var(--s-7);
+  margin: var(--s-9) 0 var(--s-5);
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.sec-label::before {
+  content: '';
+  display: block;
+  width: 22px; height: 1px;
+  background: rgba(255,255,255,.3);
+}
+
+/* ─── PHOTO FRAGMENTS ───────────── */
+.fragments {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto;
+  gap: 2px;
+  padding: 0 var(--s-7);
+  list-style: none;
+  margin: 0;
+}
+.fragments li { display: flex; }
+.frag {
+  width: 100%;
+  aspect-ratio: 1 / 1.2;
+  overflow: hidden;
+  position: relative;
+  background: #0a0a0a;
+  transition: transform var(--dur-fast) var(--ease-out);
+  opacity: .55;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+}
+.frag:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+.frag-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%) contrast(1.2) brightness(.68);
+  transition: filter var(--dur-med) var(--ease-out),
+              opacity var(--dur-fast) var(--ease-out);
+}
+.frag:hover,
+.frag.is-active { opacity: 1; z-index: 2; }
+.frag:hover .frag-img,
+.frag.is-active .frag-img {
+  filter: grayscale(100%) contrast(1.06) brightness(.95);
+}
+.frag-caption {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 14px;
+  background: linear-gradient(to top, rgba(0,0,0,.95) 0%, transparent 100%);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out);
+}
+.frag:hover .frag-caption,
+.frag.is-active .frag-caption { opacity: 1; transform: translateY(0); }
+.frag-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .25em;
+  color: rgba(255,255,255,.45);
+  margin-bottom: 4px;
+}
+.frag-text {
+  font-family: 'DM Sans', sans-serif;
+  font-style: italic;
+  font-size: .86rem;
+  font-weight: 200;
+  color: rgba(255,255,255,.92);
+  line-height: 1.4;
+}
+.frag-ph {
+  width: 100%; height: 100%;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #0a0a0a;
+}
+.frag-ph span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  color: rgba(255,255,255,.2);
+  letter-spacing: .2em;
+}
+
+/* ─── LYRIC BREAK ───────────────── */
+.lyric-break {
+  padding: var(--s-9) var(--s-7) var(--s-8);
+  text-align: center;
+  position: relative;
+}
+.lyric-break::before, .lyric-break::after {
+  content: '';
+  display: block;
+  width: 45px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+  margin: 0 auto var(--s-5);
+}
+.lyric-break::after {
+  margin: var(--s-5) auto 0;
+}
+.lyric-text {
+  font-family: 'DM Sans', sans-serif;
+  font-style: italic;
+  font-size: clamp(1.2rem, 3vw, 1.7rem);
+  font-weight: 200;
+  color: rgba(255,255,255,.72);
+  line-height: 1.55;
+  letter-spacing: -.005em;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.lyric-attr {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .35em;
+  color: rgba(255,255,255,.22);
+  text-transform: uppercase;
+  margin-top: var(--s-5);
+}
+
+/* ─── TRACK LIST ─────────────────── */
+.tracks {
+  padding: 0 var(--s-7);
+  list-style: none;
+  margin: 0;
+}
+.track {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  align-items: center;
+  padding: var(--s-5) 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  position: relative;
+  overflow: hidden;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.track:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: -2px;
+  background: rgba(255,255,255,.03);
+}
+.track::after {
+  content: '';
+  position: absolute;
+  left: -100%; top: 0; bottom: 0;
+  width: 100%;
+  background: rgba(255,255,255,.025);
+  transition: left var(--dur-fast) var(--ease-out);
+}
+.track:hover::after,
+.track.is-active::after { left: 0; }
+
+.track-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .22em;
+  color: rgba(255,255,255,.2);
+}
+.track-info { z-index: 2; }
+.track-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .92rem;
+  font-weight: 300;
+  color: rgba(255,255,255,.8);
+  letter-spacing: .02em;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.track:hover .track-name,
+.track.is-active .track-name { color: #fff; }
+.track-lyric {
+  font-size: .64rem;
+  font-weight: 200;
+  font-style: italic;
+  color: rgba(255,255,255,.24);
+  letter-spacing: .02em;
+  margin-top: 3px;
+  line-height: 1.5;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.track:hover .track-lyric,
+.track.is-active .track-lyric { color: rgba(255,255,255,.4); }
+.track-play {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem;
+  letter-spacing: .3em;
+  color: rgba(255,255,255,.18);
+  text-transform: uppercase;
+  transition: color var(--dur-fast) var(--ease-out);
+  z-index: 2;
+}
+.track:hover .track-play,
+.track.is-active .track-play { color: rgba(255,255,255,.6); }
+
+/* Spotify drawer */
+.track-sp {
+  grid-column: 1 / -1;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--dur-med) var(--ease-in-out);
+  background: #000;
+}
+.track:hover .track-sp,
+.track.is-active .track-sp { max-height: 100px; }
+.track-sp iframe { width: 100%; border: none; display: block; }
+
+/* ─── CLOSING ─────────────────── */
+.closing {
+  padding: var(--s-9) var(--s-7) var(--s-9);
+  border-top: 1px solid rgba(255,255,255,.04);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-7);
+  align-items: end;
+  margin-top: var(--s-7);
+}
+.closing-quote {
+  font-family: 'DM Sans', sans-serif;
+  font-style: italic;
+  font-weight: 200;
+  font-size: clamp(1.05rem, 2.5vw, 1.3rem);
+  color: rgba(255,255,255,.32);
+  line-height: 2.1;
+}
+.closing-quote em {
+  font-style: normal;
+  color: rgba(255,255,255,.7);
+}
+.closing-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--s-3);
+}
+.closing-sig {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: .16em;
+  color: rgba(255,255,255,.22);
+}
+.closing-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .56rem;
+  letter-spacing: .32em;
+  color: rgba(255,255,255,.1);
+  text-transform: uppercase;
+}
+
+/* ─── MOBILE ───────────────────── */
+@media (max-width: 700px) {
+  .hero-content { padding: 0 var(--s-5); }
+  .sec-label, .tracks, .lyric-break, .closing { padding-left: var(--s-5); padding-right: var(--s-5); }
+  .fragments {
+    grid-template-columns: 1fr 1fr;
+    padding: 0 var(--s-5);
+  }
+  .closing { grid-template-columns: 1fr; }
+  .closing-right { align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<!-- Preloader -->
+<div class="preloader" aria-hidden="true">
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.18em;color:rgba(255,255,255,.65);line-height:1;">NBHD</div>
+  <div class="preloader-bar"></div>
+</div>
+
+<!-- Overlays -->
+<div class="grain" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+<div class="page-overlay" aria-hidden="true"></div>
+
+<!-- Back -->
+<button class="back-btn" data-action="back" data-href="index.html"
+        aria-label="Back to collection">
+  <span class="back-arrow" aria-hidden="true"></span>back
+</button>
+
+<!-- Hero -->
+<div class="glitch-wrap">
+  <header class="hero">
+    <div class="hero-bg" aria-hidden="true">
+      <img src="images/bg-nbhd.jpg" alt="" loading="lazy" decoding="async"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <div class="hero-bg-fallback" style="display:none"></div>
+    </div>
+    <div class="hero-vign" aria-hidden="true"></div>
+    <div class="hero-artifact" aria-hidden="true"></div>
+    <div class="hero-artifact" aria-hidden="true"></div>
+
+    <div class="hero-content" id="heroContent">
+      <p class="hero-eyebrow">Jay &amp; Czarina · The Neighbourhood · Vol. VI</p>
+      <h1 class="hero-title">
+        <span class="glitch" data-text="THE">THE</span><br>
+        <span class="glitch" data-text="NEIGHBOURHOOD">NEIGHBOURHOOD</span>
+      </h1>
+      <p class="hero-sub">late night, black &amp; white</p>
+    </div>
+
+    <div class="scroll-hint" id="scrollHint" aria-hidden="true">
+      <span>scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </header>
+</div>
+
+<!-- Content -->
+<main id="main" class="content">
+
+  <p class="sec-label">moments</p>
+  <ul class="fragments" id="fragments"></ul>
+
+  <section class="lyric-break js-reveal" aria-label="Pull-quote">
+    <p class="lyric-text">I need something I can hold onto</p>
+    <p class="lyric-attr">Inspired by Sweater Weather</p>
+  </section>
+
+  <p class="sec-label">tracks</p>
+  <ul class="tracks" id="tracks"></ul>
+
+  <aside class="closing js-reveal">
+    <p class="closing-quote">
+      some songs feel like wandering<br>
+      and somehow<br>
+      <em>always lead back to you.</em>
+    </p>
+    <div class="closing-right">
+      <p class="closing-sig">— Jay</p>
+      <p class="closing-time">recorded in our quiet hours</p>
+    </div>
+  </aside>
+
+</main>
+
+<!-- Volume nav -->
+<nav class="vol-nav" aria-label="Volume navigation">
+  <span class="vol-nav-label">vol.</span>
+  <button type="button" data-vol-prev aria-label="Previous volume">‹</button>
+  <button type="button" data-vol-next aria-label="Next volume">›</button>
+</nav>
+
+<script src="shared.js"></script>
+<script>
+'use strict';
+
+(function() {
+const {
+  qs, qsa, esc,
+  prefersReducedMotion,
+  makeLater, initHeroReveal, initExclusiveActive, buildSpotifyEmbed, isTouch,
+} = window.CzarinaSystem;
+
+/* ─── DATA ─── */
+const FRAGS = [
+  { photo: 'images/photo1.jpeg', phTxt: 'photo-1', text: 'the way you make me slow down' },
+  { photo: 'images/photo2.jpeg', phTxt: 'photo-2', text: 'lazy afternoons feel like home' },
+  { photo: 'images/photo3.jpeg', phTxt: 'photo-3', text: "I'd stay here if you let me" },
+  { photo: 'images/photo4.jpeg', phTxt: 'photo-4', text: 'every small moment is my favourite' },
+];
+
+const TRACKS = [
+  {
+    name: 'Fallen Star',
+    lyric: "you're always in my brain and I take the blame\nno matter if it's wrong or right",
+    spotify: 'https://open.spotify.com/embed/track/60F6pgM6H6miNr5AmjxwjL?utm_source=generator',
+  },
+  {
+    name: 'The Shining',
+    lyric: "the way that you glow, everybody knows\nyou've got a heart of gold",
+    spotify: 'https://open.spotify.com/embed/track/3m3ylOXgB3v9xmDSIJyx9S?utm_source=generator',
+  },
+  {
+    name: 'Compass',
+    lyric: "if I don't have you with me, I'm alone\nyou know I never know which way to go",
+    spotify: 'https://open.spotify.com/embed/track/0YNtAadZvKBBEFARtfoCV8?utm_source=generator',
+  },
+  {
+    name: 'Pretty Boy',
+    lyric: "even if my heart stops beating\nyou're the only thing I need",
+    spotify: 'https://open.spotify.com/embed/track/7IL8PSVwLOJxqYne6azxQv?utm_source=generator',
+  },
+];
+
+/* ─── BUILD FRAGMENTS ─── */
+qs('#fragments').innerHTML = FRAGS.map((f, i) => `
+  <li>
+    <button class="frag js-reveal" type="button"
+            data-interactive aria-label="Fragment ${i + 1}: ${esc(f.text)}">
+      <img src="${esc(f.photo)}" class="frag-img" alt=""
+           loading="lazy" decoding="async"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="frag-ph" aria-hidden="true"><span>${esc(f.phTxt)}</span></div>
+      <div class="frag-caption">
+        <div class="frag-num">${String(i + 1).padStart(2, '0')}</div>
+        <p class="frag-text">${esc(f.text)}</p>
+      </div>
+    </button>
+  </li>
+`).join('');
+
+/* ─── BUILD TRACKS ─── */
+qs('#tracks').innerHTML = TRACKS.map((t, i) => `
+  <li>
+    <button class="track js-reveal" type="button"
+            data-interactive data-song="${esc(t.name)}"
+            aria-label="Track ${i + 1}: ${esc(t.name)}">
+      <div class="track-num">${String(i + 1).padStart(2, '0')}</div>
+      <div class="track-info">
+        <div class="track-name">${esc(t.name)}</div>
+        <p class="track-lyric">${esc(t.lyric).replace(/\n/g, '<br>')}</p>
+      </div>
+      <div class="track-play">hover to play</div>
+      <div class="track-sp">
+        ${buildSpotifyEmbed(t.spotify, t.name)}
+      </div>
+    </button>
+  </li>
+`).join('');
+
+/* Update hint text for touch devices — "hover to play" makes no sense on mobile */
+if (isTouch()) {
+  qsa('.track-play').forEach(el => { el.textContent = 'tap to play'; });
+}
+
+/* ─── TOUCH TOGGLES ─── */
+initExclusiveActive('.track', { keyboard: false });
+initExclusiveActive('.frag',  { keyboard: false });
+
+/* ─── RANDOM GLITCH + VHS TEAR ─── */
+const later = makeLater(); // scoped timer set with auto-cleanup on beforeunload
+
+if (!prefersReducedMotion()) {
+  // Glitch flicker on title
+  (function glitchSchedule() {
+    const hero = qs('.hero-title');
+    if (!hero) return;
+    function flicker() {
+      hero.style.transform =
+        `skewX(${(Math.random() - .5) * 1.5}deg) translateX(${(Math.random() - .5) * 3}px)`;
+      hero.style.transition = 'none';
+      later(() => {
+        hero.style.transform = '';
+        hero.style.transition = 'transform .12s ease';
+      }, 80 + Math.random() * 60);
+    }
+    (function schedule() {
+      later(() => { flicker(); schedule(); }, 6000 + Math.random() * 9000);
+    })();
+  })();
+
+  // VHS tear line
+  (function vhsSchedule() {
+    function tear() {
+      const line = document.createElement('div');
+      line.style.cssText = `
+        position:fixed;z-index:9991;pointer-events:none;
+        left:0;right:0;height:${1 + Math.random()}px;
+        top:${10 + Math.random() * 80}%;
+        background:rgba(255,255,255,${.04 + Math.random() * .05});
+        transform:translateX(${(Math.random() - .5) * 8}px);
+        transition:opacity .15s ease;
+      `;
+      document.body.appendChild(line);
+      later(() => {
+        line.style.opacity = '0';
+        later(() => line.remove(), 200);
+      }, 100 + Math.random() * 150);
+    }
+    (function schedule() {
+      later(() => { tear(); schedule(); }, 5000 + Math.random() * 8000);
+    })();
+  })();
+}
+
+/* ─── HERO REVEAL ─── */
+initHeroReveal({
+  duration: 1500,
+  reveals: [
+    { el: qs('#heroContent') },
+    { el: qs('#scrollHint'), delay: 700 },
+  ],
+});
+
+})();
+</script>
+</body>
+</html>

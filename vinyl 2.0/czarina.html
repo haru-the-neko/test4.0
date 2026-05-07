@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#000000">
+<title>for Czarina — Vol. I · Cigarettes After Sex</title>
+<meta name="description" content="Vol. I — Cigarettes After Sex. A contact sheet, developing slowly.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Homemade+Apple&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   VOL I — CIGARETTES AFTER SEX · a contact sheet, developing
+═══════════════════════════════════════════════════════════ */
+:root {
+  --bg: #000;
+  --ink: #fff;
+  --ink-soft: rgba(255,255,255,.75);
+  --focus-color: rgba(255,255,255,.9);
+  --cursor-bg: rgba(255,255,255,.6);
+  --cursor-bg-hover: rgba(255,255,255,.9);
+  --cursor-ring-color: rgba(255,255,255,.25);
+  --cursor-ring-hover: rgba(255,255,255,.4);
+  --preloader-bg: #000;
+  --preloader-accent: rgba(255,255,255,.25);
+  --overlay-bg: #000;
+  --back-color: rgba(255,255,255,.45);
+  --back-color-hover: rgba(255,255,255,.9);
+  --grain-opacity: .26;
+  --grain-mix: screen;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--ink);
+}
+
+/* ─── BACKGROUND ─── */
+.page-bg { position: fixed; inset: 0; z-index: 0; }
+.page-bg img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: brightness(.38) contrast(1.08) grayscale(.4);
+}
+.page-bg-overlay {
+  position: fixed; inset: 0; z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, rgba(0,0,0,.6) 0%, rgba(0,0,0,.3) 35%, rgba(0,0,0,.75) 100%),
+    radial-gradient(ellipse 80% 60% at 50% 40%, transparent 40%, rgba(0,0,0,.5) 100%);
+}
+
+/* ─── BANNER ─── */
+.banner {
+  position: relative; z-index: 10;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: var(--s-9) var(--s-6) var(--s-7);
+}
+.banner-img {
+  position: absolute; inset: 0;
+  background-image: url('images/bg1.jpg');
+  background-size: cover;
+  background-position: center 30%;
+  filter: grayscale(100%) brightness(.18) contrast(1.2);
+  transform: scale(1.04);
+  transition: transform 3s var(--ease-out);
+}
+.banner:hover .banner-img { transform: scale(1); }
+.banner-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,.15) 0%, rgba(0,0,0,.7) 100%);
+}
+.banner-fade {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 180px;
+  background: linear-gradient(to bottom, transparent, #000);
+  z-index: 2;
+}
+.banner-text {
+  position: relative; z-index: 3;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 1.2s var(--ease-out),
+    transform 1.2s var(--ease-out);
+}
+.banner-text.is-on { opacity: 1; transform: translateY(0); }
+
+.eyebrow {
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: .55em;
+  color: rgba(255,255,255,.5);
+  text-transform: uppercase;
+  margin-bottom: var(--s-5);
+}
+.banner-title {
+  font-size: clamp(1.1rem, 2.8vw, 1.6rem);
+  font-weight: 300;
+  letter-spacing: .38em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.95);
+  line-height: 1.4;
+  margin: 0;
+}
+.banner-title::after {
+  content: '';
+  display: block;
+  width: 40px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+  margin: var(--s-3) auto 0;
+}
+.banner-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .92rem;
+  font-weight: 300;
+  color: rgba(255,255,255,.42);
+  letter-spacing: .08em;
+  margin-top: var(--s-4);
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: var(--s-7); left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+  animation: scroll-bob 2.8s ease-in-out infinite;
+}
+.scroll-hint.is-on { opacity: 1; }
+.scroll-hint span {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .72rem;
+  letter-spacing: .3em;
+  color: rgba(255,255,255,.42);
+  text-transform: lowercase;
+}
+.scroll-hint-arrow {
+  width: 1px; height: 28px;
+  background: linear-gradient(to bottom, rgba(255,255,255,.4), transparent);
+}
+@keyframes scroll-bob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(6px); }
+}
+
+/* ─── CONTACT SHEET ─── */
+.sheet {
+  position: relative; z-index: 10;
+  padding: var(--s-7) var(--s-5) var(--s-9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-8);
+}
+.sheet-intro {
+  text-align: center;
+  max-width: 440px;
+  padding: 0 var(--s-5);
+  margin-bottom: var(--s-7);
+}
+.sheet-intro-label {
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: .55em;
+  color: rgba(255,255,255,.4);
+  text-transform: uppercase;
+  margin-bottom: var(--s-4);
+}
+.sheet-intro-rule {
+  width: 32px; height: 1px;
+  background: rgba(255,255,255,.2);
+  margin: 0 auto var(--s-4);
+}
+.sheet-intro-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(.98rem, 2.2vw, 1.2rem);
+  line-height: 1.85;
+  color: rgba(255,255,255,.58);
+  letter-spacing: .01em;
+}
+
+.frame-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-9);
+  width: 100%;
+}
+
+/* ─── INDIVIDUAL POLAROID ─── */
+.frame {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  --develop: 0;
+}
+
+/* Number + timestamp — feels like contact-sheet annotations */
+.frame-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-bottom: var(--s-4);
+  font-family: 'Caveat', cursive;
+  font-size: 1rem;
+  color: rgba(255,255,255,.3);
+  letter-spacing: .04em;
+  transition: color 1.4s var(--ease-out) .4s;
+}
+.frame.is-developing .frame-meta { color: rgba(255,255,255,.62); }
+.frame-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .85rem;
+  letter-spacing: .25em;
+  color: rgba(255,255,255,.38);
+}
+
+/* The polaroid itself */
+.polaroid {
+  background: #f0ebe0;
+  padding: 12px 12px 0;
+  box-shadow:
+    0 16px 42px rgba(0,0,0,.7),
+    0 5px 12px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.5);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  cursor: pointer;
+  transform: rotate(var(--tilt, 0deg));
+  transition:
+    transform var(--dur-med) var(--ease-soft),
+    box-shadow var(--dur-med) var(--ease-out);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.frame:nth-of-type(odd)  .polaroid { --tilt: -1.2deg; }
+.frame:nth-of-type(even) .polaroid { --tilt:  1.1deg; }
+
+.polaroid:hover,
+.polaroid.is-active {
+  transform: rotate(0deg) translateY(-6px);
+  box-shadow:
+    0 24px 54px rgba(0,0,0,.8),
+    0 8px 16px rgba(0,0,0,.55),
+    inset 0 1px 0 rgba(255,255,255,.5);
+}
+.polaroid:focus-visible {
+  outline: none;
+  box-shadow:
+    0 16px 42px rgba(0,0,0,.7),
+    0 0 0 3px var(--focus-color);
+}
+
+/* ─── THE PHOTO + DEVELOPMENT STAGES ─── */
+.pimg {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #050505;
+}
+
+/* Photo — filters driven by --develop (0 → 1) */
+.pimg img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter:
+    grayscale(100%)
+    blur(calc((1 - var(--develop)) * 18px))
+    brightness(calc(.15 + var(--develop) * .73))
+    contrast(calc(.5 + var(--develop) * .62));
+  transform: scale(calc(1 + (1 - var(--develop)) * .06));
+  transition: filter 2.2s var(--ease-out), transform 2.2s var(--ease-out);
+}
+.polaroid:hover .pimg img,
+.polaroid.is-active .pimg img {
+  filter:
+    grayscale(90%)
+    blur(0)
+    brightness(.95)
+    contrast(1.06);
+}
+
+/* Dark wash that fades as it develops */
+.pimg::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,1);
+  opacity: calc(1 - var(--develop));
+  transition: opacity 2.2s var(--ease-out);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Developing grain — heavy when undeveloped */
+.pimg-grain {
+  position: absolute; inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+  mix-blend-mode: screen;
+  opacity: calc((1 - var(--develop)) * .85);
+  transition: opacity 2.2s var(--ease-out);
+}
+
+/* Light-leak sweep when a photo just finished developing */
+.pimg::after {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  background: transparent;
+}
+.frame.is-developed .pimg::after {
+  animation: light-leak 1.4s var(--ease-out);
+}
+@keyframes light-leak {
+  0%   { background: linear-gradient(115deg, transparent 20%, rgba(255,215,170,.22) 30%, transparent 42%, transparent 100%); }
+  100% { background: linear-gradient(115deg, transparent 20%, rgba(255,215,170,0)   30%, transparent 42%, transparent 100%); }
+}
+
+/* Placeholder for missing images */
+.pimg-ph {
+  position: absolute; inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 8px;
+  background: #0a0a0a;
+  z-index: 1;
+}
+.pimg-ph span {
+  font-size: .6rem;
+  color: rgba(255,255,255,.25);
+  letter-spacing: .2em;
+  font-family: sans-serif;
+}
+
+/* Corner frame markers — only visible once developed */
+.frame-corner {
+  position: absolute;
+  width: 12px; height: 12px;
+  border-color: rgba(255,255,255,.35);
+  border-style: solid;
+  border-width: 0;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 1s var(--ease-out) .6s;
+  pointer-events: none;
+}
+.frame.is-developed .frame-corner { opacity: 1; }
+.frame-corner.tl { top: 22px;    left: 22px;    border-top-width: 1px;    border-left-width: 1px; }
+.frame-corner.tr { top: 22px;    right: 22px;   border-top-width: 1px;    border-right-width: 1px; }
+.frame-corner.bl { bottom: 115px; left: 22px;   border-bottom-width: 1px; border-left-width: 1px; }
+.frame-corner.br { bottom: 115px; right: 22px;  border-bottom-width: 1px; border-right-width: 1px; }
+
+/* ─── CAPTION (handwritten, fades in last) ─── */
+.pcap {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1rem, 2.8vw, 1.2rem);
+  color: #2a2a2a;
+  text-align: center;
+  padding: 16px 10px 20px;
+  line-height: 1.55;
+  border-top: 1px solid rgba(0,0,0,.06);
+  margin-top: 10px;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 1.5s var(--ease-out) 1s,
+    transform 1.5s var(--ease-out) 1s;
+}
+.frame.is-developed .pcap {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Song line — tiny caption below the handwritten line */
+.pcap-song {
+  display: block;
+  margin-top: 10px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .75rem;
+  color: rgba(42,42,42,.55);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+/* On touch: when a polaroid is tapped (is-active), show a "tap to play" cue
+   inline beneath the song title so the Spotify drawer is discoverable.
+   Also hide the standalone .play-hint below each frame — the inline cue
+   makes it redundant on touch. */
+@media (hover: none) {
+  .polaroid.is-active .pcap-song::after {
+    content: ' · tap to play';
+    font-style: normal;
+    font-size: .6em;
+    letter-spacing: .2em;
+    opacity: .55;
+  }
+  .play-hint { display: none; }
+}
+
+/* ─── SPOTIFY PLAYBACK BAR ─── */
+.spotify-wrap {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height var(--dur-med) var(--ease-in-out);
+  background: #000;
+  width: 100%;
+}
+/* Spotify opens when polaroid is hovered/active, OR when spotify-wrap itself is hovered (sibling trigger) */
+.polaroid:hover + .spotify-wrap,
+.polaroid.is-active + .spotify-wrap,
+.spotify-wrap:hover { max-height: 160px; }
+.spotify-wrap iframe { width: 100%; border: none; }
+
+/* Play hint below each polaroid — only after development */
+.play-hint {
+  margin-top: var(--s-4);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .72rem;
+  letter-spacing: .25em;
+  color: rgba(255,255,255,0);
+  text-transform: lowercase;
+  transition: color 1s var(--ease-out) 1.4s;
+  height: 14px;
+  pointer-events: none;
+}
+.frame.is-developed .play-hint { color: rgba(255,255,255,.38); }
+
+/* ─── CLOSING ─── */
+.closing {
+  position: relative; z-index: 10;
+  margin: var(--s-9) auto 0;
+  max-width: var(--container-narrow);
+  text-align: center;
+  padding: var(--s-7) var(--s-6) var(--s-8);
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.closing-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+  font-weight: 300;
+  color: rgba(255,255,255,.6);
+  line-height: 2;
+  margin-bottom: var(--s-6);
+  letter-spacing: .02em;
+}
+.closing-quote em {
+  font-style: normal;
+  color: rgba(255,255,255,.95);
+}
+.closing-divider {
+  width: 28px; height: 1px;
+  background: rgba(255,255,255,.18);
+  margin: 0 auto var(--s-5);
+}
+.closing-sig {
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: .5em;
+  color: rgba(255,255,255,.42);
+  text-transform: uppercase;
+}
+
+/* ─── DEVELOPING INDICATOR ─── */
+.sheet-status {
+  position: fixed;
+  top: var(--s-5);
+  right: var(--s-5);
+  z-index: 100;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .7rem;
+  letter-spacing: .22em;
+  color: rgba(255,255,255,.35);
+  text-transform: lowercase;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+  pointer-events: none;
+}
+.sheet-status.is-on { opacity: 1; }
+.sheet-status-dot {
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(255,180,120,.7);
+  margin-right: 7px;
+  vertical-align: middle;
+  animation: develop-pulse 1.8s ease-in-out infinite;
+}
+@keyframes develop-pulse {
+  0%, 100% { opacity: .4; }
+  50%      { opacity: 1; }
+}
+
+/* ─── MOBILE ─── */
+@media (max-width: 560px) {
+  .banner { min-height: 88vh; }
+  .sheet { gap: var(--s-8); padding: var(--s-6) var(--s-4) var(--s-8); }
+  .frame { max-width: 100%; }
+  .frame-corner.bl { bottom: 110px; }
+  .frame-corner.br { bottom: 110px; }
+  .sheet-status { display: none; }
+}
+
+/* ─── REDUCED MOTION ─── */
+@media (prefers-reduced-motion: reduce) {
+  .pimg img,
+  .pimg::before,
+  .pimg-grain {
+    transition: none !important;
+  }
+  .pcap {
+    transition: opacity .2s, transform .2s;
+  }
+  .frame.is-developed .pimg::after { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<!-- Preloader -->
+<div class="preloader" aria-hidden="true">
+  <div class="eyebrow" style="color:rgba(255,255,255,.3)">developing</div>
+  <div class="preloader-bar"></div>
+</div>
+
+<!-- Overlays -->
+<div class="grain" aria-hidden="true"></div>
+<div class="page-overlay" aria-hidden="true"></div>
+
+<!-- Back button -->
+<button class="back-btn" data-action="back" data-href="index.html"
+        aria-label="Back to collection">
+  <span class="back-arrow" aria-hidden="true"></span>back
+</button>
+
+<!-- Contact-sheet status indicator -->
+<div class="sheet-status" id="sheetStatus" aria-live="polite">
+  <span class="sheet-status-dot" aria-hidden="true"></span><span id="sheetStatusText">developing…</span>
+</div>
+
+<!-- Page background -->
+<div class="page-bg" aria-hidden="true">
+  <img src="images/bg1.jpg" alt="" loading="lazy" decoding="async"
+       onerror="this.style.display='none'">
+</div>
+<div class="page-bg-overlay" aria-hidden="true"></div>
+
+<!-- Banner -->
+<header class="banner">
+  <div class="banner-img" aria-hidden="true"></div>
+  <div class="banner-overlay" aria-hidden="true"></div>
+  <div class="banner-fade" aria-hidden="true"></div>
+  <div class="banner-text" id="bannerText">
+    <p class="eyebrow">Vol. I · To Czarina</p>
+    <h1 class="banner-title">Cigarettes After Sex</h1>
+    <p class="banner-sub">a contact sheet, developing slowly</p>
+  </div>
+  <div class="scroll-hint" id="scrollHint" aria-hidden="true">
+    <span>scroll — and they appear</span>
+    <div class="scroll-hint-arrow"></div>
+  </div>
+</header>
+
+<!-- Contact sheet -->
+<main id="main" class="sheet">
+  <div class="sheet-intro js-reveal">
+    <p class="sheet-intro-label">contact sheet · 04 frames</p>
+    <div class="sheet-intro-rule" aria-hidden="true"></div>
+    <p class="sheet-intro-text">
+      four photographs, left in the bath a little longer than usual.<br>
+      scroll slowly — they come back on their own.
+    </p>
+  </div>
+
+  <div class="frame-list" id="frameList"></div>
+
+  <aside class="closing">
+    <p class="closing-quote">
+      every picture of you<br>
+      is <em>the one I'd keep.</em><br><br>
+      thank you for being<br>
+      <em>every song I love.</em>
+    </p>
+    <div class="closing-divider" aria-hidden="true"></div>
+    <p class="closing-sig">with love — Jay</p>
+  </aside>
+</main>
+
+<!-- Volume nav -->
+<nav class="vol-nav" aria-label="Volume navigation">
+  <span class="vol-nav-label">vol.</span>
+  <button type="button" data-vol-prev aria-label="Previous volume">‹</button>
+  <button type="button" data-vol-next aria-label="Next volume">›</button>
+</nav>
+
+<script src="shared.js"></script>
+<script>
+'use strict';
+
+(function() {
+const {
+  qs, qsa, esc,
+  prefersReducedMotion,
+  initHeroReveal, buildSpotifyEmbed, initExclusiveActive, isTouch,
+} = window.CzarinaSystem;
+
+/* ─── DATA ─── */
+const MEMORIES = [
+  {
+    num: '01',
+    time: '— exposed the morning after',
+    photo:  'images/photo1.jpeg',
+    phTxt:  'photo 01',
+    caption: "nothing's gonna hurt you, baby",
+    song:    "Nothing's Gonna Hurt You, Baby",
+    spotify: 'https://open.spotify.com/embed/track/3W7KHojYGgYaoX9ogKO9hU?utm_source=generator',
+  },
+  {
+    num: '02',
+    time: '— fogged and kept anyway',
+    photo:  'images/photo2.jpeg',
+    phTxt:  'photo 02',
+    caption: "i'm gonna keep on loving you",
+    song:    'Keep On Loving You',
+    spotify: 'https://open.spotify.com/embed/track/6i2XzqnaxvpNVTUw8EjPMU?utm_source=generator',
+  },
+  {
+    num: '03',
+    time: '— the quiet one',
+    photo:  'images/photo3.jpeg',
+    phTxt:  'photo 03',
+    caption: 'truly, it was always\ngoing to be you',
+    song:    'Truly',
+    spotify: 'https://open.spotify.com/embed/track/2KhrPRV0V1FS2l4eQMJUWt?utm_source=generator',
+  },
+  {
+    num: '04',
+    time: '— the last on the roll',
+    photo:  'images/photo4.jpeg',
+    phTxt:  'photo 04',
+    caption: 'every small hour\nturns to you',
+    song:    'Apocalypse',
+    spotify: 'https://open.spotify.com/embed/track/3GUSidbQwd7xuvU6AQorRh?utm_source=generator',
+  },
+];
+
+/* ─── BUILD ─── */
+const list = qs('#frameList');
+list.innerHTML = MEMORIES.map((m, i) => `
+  <div class="frame" data-frame="${i}" style="--develop: 0;">
+    <div class="frame-meta" aria-hidden="true">
+      <span class="frame-num">${esc(m.num)}</span>
+      <span>${esc(m.time)}</span>
+    </div>
+    <div class="polaroid" role="button" tabindex="0"
+            data-interactive data-song="${esc(m.song)}"
+            aria-label="Frame ${esc(m.num)}: ${esc(m.song)} — hover or focus to play"
+            aria-expanded="false">
+      <span class="frame-corner tl" aria-hidden="true"></span>
+      <span class="frame-corner tr" aria-hidden="true"></span>
+      <span class="frame-corner bl" aria-hidden="true"></span>
+      <span class="frame-corner br" aria-hidden="true"></span>
+      <div class="pimg">
+        <img src="${esc(m.photo)}" alt="A black-and-white photograph, frame ${esc(m.num)}"
+             loading="lazy" decoding="async"
+             onerror="this.style.display='none';this.nextElementSibling.nextElementSibling.style.display='flex'">
+        <div class="pimg-grain" aria-hidden="true"></div>
+        <div class="pimg-ph" aria-hidden="true"><span>${esc(m.phTxt)}</span></div>
+      </div>
+      <div class="pcap">
+        <div>
+          ${esc(m.caption).replace(/\n/g, '<br>')}
+          <span class="pcap-song">${esc(m.song)}</span>
+        </div>
+      </div>
+    </div>
+    <div class="spotify-wrap" data-interactive data-song="${esc(m.song)}">
+      ${buildSpotifyEmbed(m.spotify, m.song, { height: 152 })}
+    </div>
+    <p class="play-hint" aria-hidden="true">hover · play</p>
+  </div>
+`).join('');
+
+/* Update text and aria-label for touch devices */
+if (isTouch()) {
+  qsa('.play-hint').forEach(el => { el.textContent = 'tap · play'; });
+  qsa('.polaroid[aria-label]').forEach(el => {
+    el.setAttribute('aria-label',
+      el.getAttribute('aria-label').replace('hover or focus to play', 'tap to play'));
+  });
+}
+
+/* ─── DEVELOP SEQUENCE ─── */
+const frames = qsa('.frame');
+const status = qs('#sheetStatus');
+const statusText = qs('#sheetStatusText');
+let developedCount = 0;
+
+function develop(frame) {
+  if (frame.classList.contains('is-developing')) return;
+  frame.classList.add('is-developing');
+
+  if (prefersReducedMotion()) {
+    frame.style.setProperty('--develop', '1');
+    frame.classList.add('is-developed');
+    updateStatus();
+    return;
+  }
+
+  requestAnimationFrame(() => {
+    frame.style.setProperty('--develop', '1');
+  });
+
+  // After the 2.2s CSS transition, mark fully developed (triggers light-leak + caption)
+  setTimeout(() => {
+    frame.classList.add('is-developed');
+    updateStatus();
+  }, 2300);
+}
+
+function updateStatus() {
+  developedCount++;
+  if (developedCount >= frames.length) {
+    statusText.textContent = 'all developed';
+    setTimeout(() => status.classList.remove('is-on'), 2400);
+  } else {
+    statusText.textContent = `developing ${developedCount}/${frames.length}`;
+  }
+}
+
+/* IntersectionObserver — develop each frame as it enters viewport */
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const idx = parseInt(e.target.dataset.frame, 10);
+        // tiny stagger so adjacent frames don't develop at the exact same moment
+        setTimeout(() => develop(e.target), idx * 180);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px' });
+  frames.forEach(f => io.observe(f));
+} else {
+  frames.forEach(f => develop(f));
+}
+
+/* ─── TOUCH TOGGLE + KEYBOARD ─── */
+initExclusiveActive('.polaroid', {
+  ariaAttr: 'aria-expanded',
+  keyboard: true,
+});
+
+/* ─── HERO REVEAL ─── */
+initHeroReveal({
+  duration: 1400,
+  reveals: [
+    { el: qs('#bannerText') },
+    { el: qs('#scrollHint'), delay: 700  },
+    { el: qs('#sheetStatus'), delay: 1400 },
+  ],
+});
+
+})();
+</script>
+</body>
+</html>

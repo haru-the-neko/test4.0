@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2a1d0a">
+<title>for Czarina — Vol. III · Mac DeMarco</title>
+<meta name="description" content="Vol. III — Mac DeMarco. Postcards from our summer.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&family=IM+Fell+English:ital@0;1&family=DM+Sans:wght@200;300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   VOL III — MAC DEMARCO · postcards
+═══════════════════════════════════════════════════════════ */
+:root {
+  --bg: #2a1d0a;
+  --paper: #f5e8c5;
+  --paper-warm: #f0d89d;
+  --ink-warm: #3a2820;
+  --accent: #c89860;
+  --focus-color: #f5d090;
+  --cursor-bg: rgba(200,152,96,.75);
+  --cursor-bg-hover: rgba(232,200,140,.95);
+  --cursor-ring-color: rgba(200,152,96,.25);
+  --cursor-ring-hover: rgba(232,200,140,.5);
+  --preloader-bg: #2a1d0a;
+  --preloader-accent: rgba(232,200,140,.35);
+  --overlay-bg: #2a1d0a;
+  --back-color: rgba(232,200,140,.5);
+  --back-color-hover: rgba(255,220,160,.95);
+  --grain-opacity: .15;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink-warm);
+  font-weight: 300;
+}
+
+/* ─── TABLE BACKGROUND ────────────────── */
+.atm-table {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 50%,
+      rgba(60,42,22,.55) 0%, rgba(42,29,10,.2) 60%, #1a1108 100%),
+    #2a1d0a;
+}
+.atm-table::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(35deg,
+      transparent 0px, transparent 3px,
+      rgba(90,65,35,.08) 3px, rgba(90,65,35,.08) 4px);
+  pointer-events: none;
+}
+.atm-photo {
+  position: fixed; inset: 0; z-index: 1;
+  opacity: .3;
+  mix-blend-mode: overlay;
+}
+.atm-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: sepia(.75) brightness(.7) contrast(1.18) saturate(1.15);
+}
+.atm-vign {
+  position: fixed; inset: 0; z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(ellipse 95% 75% at 50% 50%,
+    transparent 28%, rgba(0,0,0,.78) 100%);
+}
+.atm-light {
+  position: fixed;
+  top: -150px; left: 60%;
+  width: 800px; height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse,
+    rgba(255,200,100,.1) 0%, transparent 60%);
+  pointer-events: none; z-index: 3;
+  filter: blur(50px);
+}
+
+/* ─── HERO ─────────────────────────── */
+.hero {
+  position: relative; z-index: 10;
+  width: 100%;
+  min-height: 80vh;
+  padding: var(--s-9) var(--s-6) var(--s-8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.hero-content {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 1.2s var(--ease-out),
+              transform 1.2s var(--ease-out);
+}
+.hero-content.is-on { opacity: 1; transform: translateY(0); }
+
+.hero-eyebrow {
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: .55em;
+  color: rgba(232,200,140,.6);
+  text-transform: uppercase;
+  margin-bottom: var(--s-5);
+}
+.hero-title {
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: clamp(2rem, 6.5vw, 4rem);
+  font-weight: 400;
+  color: #f5d090;
+  letter-spacing: .01em;
+  line-height: 1.1;
+  margin: 0;
+  text-shadow: 0 2px 20px rgba(255,180,60,.1);
+}
+.hero-title::after {
+  content: '';
+  display: block;
+  width: 42px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,200,140,.4), transparent);
+  margin: var(--s-4) auto 0;
+}
+.hero-sub {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: rgba(232,200,140,.5);
+  margin-top: var(--s-3);
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+
+/* ─── POSTCARDS ────────────────────── */
+.postcards {
+  position: relative; z-index: 10;
+  width: 100%;
+  max-width: 780px;
+  padding: 0 var(--s-5) var(--s-9);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-7) var(--s-6);
+  list-style: none;
+}
+.postcards li {
+  display: flex;
+  justify-content: center;
+}
+
+.pc-wrap {
+  width: 100%;
+  max-width: 330px;
+  aspect-ratio: 3 / 2;
+  perspective: 1600px;
+  position: relative;
+}
+
+.pc {
+  position: relative;
+  width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform var(--dur-slow) var(--ease-soft);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  touch-action: manipulation;
+}
+.pc:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 6px;
+  border-radius: 2px;
+}
+.pc.is-flipped { transform: rotateY(180deg); }
+
+.pc-face, .pc-back {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: var(--paper);
+  box-shadow:
+    0 10px 26px rgba(0,0,0,.6),
+    0 3px 8px rgba(0,0,0,.4),
+    inset 0 0 0 1px rgba(120,85,40,.1);
+  overflow: hidden;
+}
+
+/* Individual rotations */
+.postcards li:nth-child(1) .pc-wrap { rotate: -1.4deg; }
+.postcards li:nth-child(2) .pc-wrap { rotate: 1.1deg; }
+.postcards li:nth-child(3) .pc-wrap { rotate: 1.8deg; }
+.postcards li:nth-child(4) .pc-wrap { rotate: -.8deg; }
+
+/* Paper texture */
+.pc-face::before, .pc-back::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(35deg,
+      transparent 0px, transparent 2px,
+      rgba(120,85,40,.03) 2px, rgba(120,85,40,.03) 3px);
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Front image */
+.pc-img {
+  position: absolute; inset: 0;
+  overflow: hidden;
+}
+.pc-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: sepia(.45) saturate(1.15) brightness(.85) contrast(1.08);
+  transition: filter var(--dur-med) var(--ease-out);
+}
+.pc:hover .pc-img img,
+.pc-wrap.is-flipped .pc-img img { filter: sepia(.28) saturate(1.25) brightness(.95) contrast(1.04); }
+.pc-img::after {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 40% 35%,
+      rgba(255,200,100,.1) 0%, transparent 60%),
+    linear-gradient(145deg,
+      rgba(60,40,20,.0) 40%, rgba(60,40,20,.25) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+.pc-img-ph {
+  position: absolute; inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  background: #3a2820;
+}
+.pc-img-ph span {
+  font-size: .55rem;
+  color: rgba(245,216,157,.3);
+  letter-spacing: .22em;
+  font-family: sans-serif;
+}
+
+/* Front caption */
+.pc-front-cap {
+  position: absolute;
+  bottom: 10px; left: 12px; right: 12px;
+  z-index: 5;
+  font-family: 'Caveat', cursive;
+  font-size: clamp(.85rem, 2.3vw, 1.02rem);
+  color: var(--paper);
+  text-shadow: 0 2px 8px rgba(0,0,0,.85);
+  font-weight: 500;
+  letter-spacing: .02em;
+  line-height: 1.3;
+}
+
+/* Flip hint */
+.pc-hint {
+  position: absolute;
+  top: 10px; right: 12px;
+  z-index: 5;
+  font-size: 8px;
+  font-weight: 200;
+  letter-spacing: .35em;
+  color: rgba(245,216,157,.65);
+  text-transform: uppercase;
+  background: rgba(42,29,10,.5);
+  padding: 3px 7px;
+  border-radius: 2px;
+  backdrop-filter: blur(4px);
+}
+
+/* Stamp corner */
+.pc-stamp {
+  position: absolute;
+  top: 8px; left: 10px;
+  z-index: 5;
+  width: 28px; height: 36px;
+  background:
+    repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(120,85,40,.35) 3px, rgba(120,85,40,.35) 4px),
+    repeating-linear-gradient(90deg, transparent 0, transparent 3px, rgba(120,85,40,.35) 3px, rgba(120,85,40,.35) 4px),
+    var(--tape, #e8a868);
+  border: 1px dashed rgba(120,85,40,.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: rgba(58,40,32,.85);
+  font-family: 'IM Fell English', serif;
+}
+
+/* Back face */
+.pc-back {
+  transform: rotateY(180deg);
+  background: var(--paper-warm);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 14px 16px;
+  gap: var(--s-4);
+  position: absolute;
+}
+.pc-back::after {
+  content: '';
+  position: absolute;
+  top: 14px; bottom: 14px;
+  left: 50%;
+  width: 1px;
+  background: rgba(120,85,40,.25);
+  transform: translateX(-.5px);
+}
+.pc-msg {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(.88rem, 2.1vw, 1rem);
+  color: var(--ink-warm);
+  line-height: 1.55;
+  letter-spacing: .01em;
+}
+.pc-addr {
+  padding-left: var(--s-3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.pc-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: var(--s-3);
+}
+.pc-line {
+  height: 1px;
+  background: rgba(120,85,40,.25);
+  width: 85%;
+}
+.pc-line:nth-child(2) { width: 72%; }
+.pc-line:nth-child(3) { width: 60%; }
+.pc-song {
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: .76rem;
+  color: rgba(60,42,32,.7);
+  margin-top: var(--s-3);
+  border-top: 1px dashed rgba(120,85,40,.3);
+  padding-top: 8px;
+  letter-spacing: .04em;
+}
+
+/* Flip hint — hide once the card has been flipped so it does not show
+   on the back face or remain visible as an instruction after use */
+.pc-wrap.is-flipped .pc-hint {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ─── SPOTIFY DRAWER ──────────────── */
+.spotify-drawer {
+  margin-top: 8px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--dur-med) var(--ease-in-out);
+  background: rgba(42,29,10,.85);
+  border-radius: 3px;
+}
+.pc-wrap.is-flipped + .spotify-drawer { max-height: 100px; }
+.spotify-drawer iframe { width: 100%; border: none; display: block; }
+
+/* ─── CLOSING ─────────────────────── */
+.closing {
+  position: relative; z-index: 10;
+  max-width: var(--container-narrow);
+  margin: 0 auto;
+  padding: var(--s-8) var(--s-6) var(--s-9);
+  text-align: center;
+}
+.closing-rule {
+  width: 40px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,200,140,.35), transparent);
+  margin: 0 auto var(--s-6);
+}
+.closing-quote {
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 2.5vw, 1.3rem);
+  color: rgba(232,200,140,.55);
+  line-height: 2.1;
+  margin-bottom: var(--s-5);
+  letter-spacing: .01em;
+}
+.closing-quote em {
+  font-style: normal;
+  color: rgba(255,220,160,.9);
+}
+.closing-divider {
+  width: 24px; height: 1px;
+  background: rgba(232,200,140,.25);
+  margin: 0 auto var(--s-4);
+}
+.closing-sig {
+  font-family: 'Caveat', cursive;
+  font-size: 1rem;
+  color: rgba(232,200,140,.55);
+  letter-spacing: .05em;
+}
+
+/* ─── MOBILE ──────────────────────── */
+@media (max-width: 620px) {
+  .hero { min-height: 60vh; padding: var(--s-8) var(--s-4) var(--s-7); }
+  .postcards {
+    grid-template-columns: 1fr;
+    gap: var(--s-6);
+    padding: 0 var(--s-4) var(--s-7);
+  }
+  .pc-wrap { max-width: 100%; }
+  .postcards li:nth-child(n) .pc-wrap { rotate: 0deg; }
+}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<!-- Preloader -->
+<div class="preloader" aria-hidden="true">
+  <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:1.4rem;color:rgba(232,200,140,.5);letter-spacing:.04em;">Mac DeMarco</div>
+  <div style="font-family:'Caveat',cursive;font-size:.95rem;color:rgba(232,200,140,.35);letter-spacing:.05em;">postcards from us</div>
+  <div class="preloader-bar"></div>
+</div>
+
+<!-- Atmosphere -->
+<div class="atm-table" aria-hidden="true"></div>
+<div class="atm-photo" aria-hidden="true">
+  <img src="images/bg-mac.jpg" alt="" loading="lazy" decoding="async"
+       onerror="this.style.display='none'">
+</div>
+<div class="atm-vign" aria-hidden="true"></div>
+<div class="atm-light" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="page-overlay" aria-hidden="true"></div>
+
+<!-- Back -->
+<button class="back-btn" data-action="back" data-href="index.html"
+        aria-label="Back to collection">
+  <span class="back-arrow" aria-hidden="true"></span>back
+</button>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="hero-content" id="heroContent">
+    <p class="hero-eyebrow">Vol. III · To Czarina</p>
+    <h1 class="hero-title">Mac DeMarco</h1>
+    <p class="hero-sub">postcards from our summer</p>
+  </div>
+</header>
+
+<!-- Postcards -->
+<main id="main">
+  <h2 class="sr-only">Four postcards, four songs — tap each to flip and read the note</h2>
+  <ul class="postcards" id="postcards"></ul>
+
+  <aside class="closing js-reveal">
+    <div class="closing-rule" aria-hidden="true"></div>
+    <p class="closing-quote">
+      you feel like<br>
+      <em>the best summer</em><br>
+      I've ever lived.
+    </p>
+    <div class="closing-divider" aria-hidden="true"></div>
+    <p class="closing-sig">yours, always — Jay</p>
+  </aside>
+</main>
+
+<!-- Volume nav -->
+<nav class="vol-nav" aria-label="Volume navigation">
+  <span class="vol-nav-label">vol.</span>
+  <button type="button" data-vol-prev aria-label="Previous volume">‹</button>
+  <button type="button" data-vol-next aria-label="Next volume">›</button>
+</nav>
+
+<script src="shared.js"></script>
+<script>
+'use strict';
+
+(function() {
+const { qs, qsa, esc, initHeroReveal, buildSpotifyEmbed } = window.CzarinaSystem;
+
+/* ─── POSTCARDS ─── */
+const POSTCARDS = [
+  {
+    photo:  'images/photo1.jpeg',
+    phTxt:  'photo1',
+    tape: '#e8a868',
+    frontCap: 'golden hour, you smiling\nabout nothing in particular',
+    msg:  "I didn't know\npeace could feel\nlike someone.\n\nthen it did.\nit was you.",
+    song: 'Chamber of Reflection',
+    spotify: 'https://open.spotify.com/embed/track/3bOFz7JA0wjwFRIKsZoKHR?utm_source=generator',
+  },
+  {
+    photo:  'images/photo2.jpeg',
+    phTxt:  'photo2',
+    tape: '#d89058',
+    frontCap: 'the afternoon we got\nnothing done, on purpose',
+    msg:  'I don\'t need\nmuch else\nwhen you\'re here.\n\njust this.\njust us.',
+    song: 'My Kind of Woman',
+    spotify: 'https://open.spotify.com/embed/track/1SFqHGHMaitOwZm4mrVFPM?utm_source=generator',
+  },
+  {
+    photo:  'images/photo3.jpeg',
+    phTxt:  'photo3',
+    tape: '#c48a4a',
+    frontCap: 'warm wind, your laugh\nsomewhere ahead of me',
+    msg:  'every quiet day\nwith you is a\ngood day.\n\neven the ones\nwhere nothing\nhappens.',
+    song: 'Still Together',
+    spotify: 'https://open.spotify.com/embed/track/5RGdq6iNaAXj1ACGiIZeqi?utm_source=generator',
+  },
+  {
+    photo:  'images/photo4.jpeg',
+    phTxt:  'photo4',
+    tape: '#e8a868',
+    frontCap: 'the colour of everything\nwhen you\'re in the room',
+    msg:  'I kept this\nbecause\nI want to remember\nthat we were here\n— and that it was\ngood.',
+    song: 'Heart to Heart',
+    spotify: null,
+  },
+];
+
+/* ─── BUILD ─── */
+const wrap = qs('#postcards');
+wrap.innerHTML = POSTCARDS.map((pc, i) => {
+  return `
+    <li>
+      <div style="width:100%;max-width:330px;">
+        <div class="pc-wrap" id="pc-${i}" data-interactive data-song="${esc(pc.song)}">
+          <button class="pc" type="button"
+                  aria-label="Postcard ${i + 1}: ${esc(pc.song)} — press Enter to flip"
+                  aria-pressed="false">
+            <div class="pc-face">
+              <div class="pc-img">
+                <img src="${esc(pc.photo)}" alt="Postcard ${i + 1}"
+                     loading="lazy" decoding="async"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <div class="pc-img-ph" aria-hidden="true"><span>${esc(pc.phTxt)}</span></div>
+              </div>
+              <span class="pc-stamp" style="--tape:${pc.tape}" aria-hidden="true">~</span>
+              <span class="pc-hint" aria-hidden="true">flip</span>
+              <p class="pc-front-cap">${esc(pc.frontCap).replace(/\n/g, '<br>')}</p>
+            </div>
+            <div class="pc-back">
+              <div class="pc-msg">${esc(pc.msg).replace(/\n/g, '<br>')}</div>
+              <div class="pc-addr">
+                <div class="pc-lines">
+                  <div class="pc-line"></div>
+                  <div class="pc-line"></div>
+                  <div class="pc-line"></div>
+                </div>
+                <div class="pc-song">♩ ${esc(pc.song)}</div>
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="spotify-drawer">${buildSpotifyEmbed(pc.spotify, pc.song)}</div>
+      </div>
+    </li>`;
+}).join('');
+
+/* ─── FLIP LOGIC ─── */
+qsa('.pc').forEach(btn => {
+  const wrapEl = btn.closest('.pc-wrap');
+  btn.addEventListener('click', () => {
+    const flipped = wrapEl.classList.toggle('is-flipped');
+    btn.classList.toggle('is-flipped', flipped);
+    btn.setAttribute('aria-pressed', flipped ? 'true' : 'false');
+  });
+});
+
+/* ─── HERO REVEAL ─── */
+initHeroReveal({
+  duration: 1400,
+  reveals: [{ el: qs('#heroContent') }],
+});
+
+})();
+</script>
+</body>
+</html>

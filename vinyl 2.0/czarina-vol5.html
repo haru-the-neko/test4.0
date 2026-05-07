@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1e0800">
+<title>for Czarina — Vol. V · Frank Ocean</title>
+<meta name="description" content="Vol. V — Frank Ocean. Channels of you, tuned in late.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,300;0,400;1,300;1,400&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   VOL V — FRANK OCEAN · channels of you
+═══════════════════════════════════════════════════════════ */
+:root {
+  --bg: #1e0800;
+  --ink: #ffd090;
+  --ink-soft: rgba(255,208,144,.75);
+  --accent: #ff9030;
+  --focus-color: #ffb060;
+  --cursor-bg: rgba(255,180,80,.6);
+  --cursor-bg-hover: rgba(255,210,140,.95);
+  --cursor-ring-color: rgba(255,180,80,.25);
+  --cursor-ring-hover: rgba(255,180,80,.5);
+  --preloader-bg: #1e0800;
+  --preloader-accent: rgba(255,180,80,.35);
+  --overlay-bg: #120500;
+  --back-color: rgba(255,180,80,.5);
+  --back-color-hover: rgba(255,220,160,.95);
+  --grain-opacity: .18;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Playfair Display', serif;
+  color: var(--ink);
+  font-weight: 300;
+}
+
+/* ─── ATMOSPHERE ─────────────────── */
+.atm-base {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 75% 60% at 50% 35%,
+      rgba(200,75,10,.32) 0%, rgba(120,45,10,.18) 40%,
+      rgba(30,8,0,0) 75%),
+    #1e0800;
+}
+.atm-photo {
+  position: fixed; inset: 0; z-index: 1;
+  opacity: .28;
+  mix-blend-mode: overlay;
+}
+.atm-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: brightness(.3) contrast(1.15) saturate(1.4) hue-rotate(-5deg);
+}
+.atm-vign {
+  position: fixed; inset: 0; z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(ellipse 95% 75% at 50% 50%,
+    transparent 25%, rgba(0,0,0,.85) 100%);
+}
+.atm-light {
+  position: fixed;
+  top: -120px; right: 15%;
+  width: 700px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse,
+    rgba(255,140,40,.14) 0%, transparent 60%);
+  pointer-events: none; z-index: 3;
+  filter: blur(50px);
+}
+
+/* Scan lines for CRT feel */
+.scan {
+  position: fixed; inset: 0; z-index: 9988;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg,
+    rgba(0,0,0,.08) 0px, rgba(0,0,0,.08) 1px,
+    transparent 1px, transparent 3px);
+  mix-blend-mode: multiply;
+}
+
+/* ─── HEADER ─────────────────────── */
+.hdr {
+  position: relative; z-index: 10;
+  text-align: center;
+  padding: var(--s-9) var(--s-5) var(--s-7);
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 1.2s var(--ease-out), transform 1.2s var(--ease-out);
+}
+.hdr.is-on { opacity: 1; transform: translateY(0); }
+.hdr-rule, .hdr-rule-bot {
+  width: 100px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,180,80,.4), transparent);
+  margin: 0 auto var(--s-5);
+}
+.hdr-rule-bot { margin: var(--s-5) auto 0; }
+.hdr-eye {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: .92rem;
+  letter-spacing: .55em;
+  color: rgba(255,180,80,.55);
+  text-transform: uppercase;
+  margin-bottom: var(--s-5);
+}
+.hdr-title {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(2rem, 5.5vw, 3.4rem);
+  color: rgba(255,220,160,.95);
+  letter-spacing: .01em;
+  line-height: 1.1;
+  margin: 0 0 var(--s-4);
+  text-shadow: 0 0 25px rgba(255,140,40,.15);
+}
+.hdr-sub {
+  font-family: 'VT323', monospace;
+  font-size: 1rem;
+  letter-spacing: .18em;
+  color: rgba(255,180,80,.55);
+  text-transform: uppercase;
+}
+
+/* ─── CHANNEL SWITCHER ───────────── */
+.channel-bar {
+  position: relative; z-index: 10;
+  max-width: var(--container-wide);
+  margin: 0 auto var(--s-6);
+  padding: 0 var(--s-5);
+  display: flex;
+  justify-content: center;
+  gap: var(--s-2);
+}
+.channel-btn {
+  padding: 8px 14px;
+  background: rgba(0,0,0,.4);
+  border: 1px solid rgba(255,180,80,.2);
+  color: rgba(255,180,80,.55);
+  font-family: 'VT323', monospace;
+  font-size: 1rem;
+  letter-spacing: .08em;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+  text-transform: uppercase;
+}
+.channel-btn:hover,
+.channel-btn:focus-visible {
+  color: rgba(255,220,160,.95);
+  border-color: rgba(255,180,80,.5);
+  background: rgba(255,140,40,.08);
+}
+.channel-btn.is-active {
+  color: rgba(255,230,180,1);
+  border-color: rgba(255,180,80,.8);
+  background: rgba(255,140,40,.15);
+}
+.channel-hint {
+  position: absolute;
+  top: -20px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'VT323', monospace;
+  font-size: .7rem;
+  letter-spacing: .32em;
+  color: rgba(255,180,80,.35);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ─── TV GRID ────────────────────── */
+.tv-grid {
+  position: relative; z-index: 10;
+  max-width: var(--container-wide);
+  margin: 0 auto;
+  padding: 0 var(--s-5) var(--s-9);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-6);
+  list-style: none;
+}
+
+/* ─── TV CARD ─────────────────────── */
+.tv-card {
+  width: 100%;
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  display: block;
+  position: relative;
+  transition: transform var(--dur-med) var(--ease-soft);
+}
+.tv-card:hover,
+.tv-card.is-active,
+.tv-card:focus-visible {
+  transform: translateY(-4px);
+  outline: none;
+}
+.tv-card.is-highlighted .tv {
+  box-shadow:
+    0 18px 40px rgba(0,0,0,.75),
+    0 0 0 2px rgba(255,180,80,.4),
+    0 0 32px rgba(255,140,40,.25);
+}
+
+.tv {
+  background: linear-gradient(145deg, #3a1812, #2a1008 50%, #1e0a04);
+  border-radius: 14px 14px 10px 10px;
+  padding: 10px 10px 4px;
+  box-shadow:
+    0 12px 32px rgba(0,0,0,.7),
+    0 2px 6px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.07),
+    inset 0 -2px 0 rgba(0,0,0,.4);
+  position: relative;
+  transition: box-shadow var(--dur-fast) var(--ease-out);
+}
+/* TV bezel highlight */
+.tv::before {
+  content: '';
+  position: absolute;
+  top: 4px; left: 10px; right: 10px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent);
+  pointer-events: none;
+}
+/* TV knobs */
+.tv::after {
+  content: '';
+  position: absolute;
+  right: 16px; bottom: -6px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #60381a, #2a1408);
+  box-shadow: 0 1px 2px rgba(0,0,0,.5);
+}
+
+.tv-screen {
+  aspect-ratio: 4 / 3;
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  border-radius: 7px 7px 4px 4px;
+  box-shadow:
+    inset 0 0 28px rgba(0,0,0,.85),
+    inset 0 0 0 1px rgba(255,255,255,.03);
+}
+.tv-screen img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: brightness(.62) contrast(1.14) saturate(1.25) hue-rotate(-8deg);
+  transition: filter var(--dur-med) var(--ease-out);
+}
+.tv-card:hover .tv-screen img,
+.tv-card.is-active .tv-screen img {
+  filter: brightness(.78) contrast(1.08) saturate(1.22) hue-rotate(-4deg);
+}
+.tv-tint {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 30% 25%, rgba(255,180,100,.14) 0%, transparent 55%),
+    linear-gradient(135deg, transparent 45%, rgba(0,0,0,.25) 100%);
+  pointer-events: none;
+}
+.tv-grad {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 55%, rgba(0,0,0,.9) 100%);
+  pointer-events: none;
+}
+/* CRT scanlines per-TV */
+.tv-screen::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg,
+    rgba(0,0,0,.14) 0px, rgba(0,0,0,.14) 1px,
+    transparent 1px, transparent 2px);
+  pointer-events: none;
+  opacity: .7;
+}
+/* Static effect while channel-changing */
+.channel-changing .tv-screen::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)' opacity='.4'/%3E%3C/svg%3E");
+  z-index: 5;
+  opacity: .85;
+  pointer-events: none;
+  animation: static-flicker .12s steps(2) infinite;
+}
+@keyframes static-flicker {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-2px, 1px); }
+  100% { transform: translate(1px, -1px); }
+}
+
+.tv-text {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  z-index: 3;
+  padding: 14px 16px 12px;
+}
+.tv-channel {
+  font-family: 'VT323', monospace;
+  font-size: 1rem;
+  letter-spacing: .28em;
+  color: rgba(255,220,120,.65);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.tv-cap {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: clamp(.88rem, 2.2vw, 1.08rem);
+  color: rgba(255,255,255,.92);
+  font-weight: 300;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+.tv-lyric {
+  font-size: .62rem;
+  font-weight: 300;
+  color: rgba(255,255,255,.35);
+  line-height: 1.65;
+  font-style: italic;
+  letter-spacing: .02em;
+  transition: color var(--dur-med) var(--ease-out);
+}
+.tv-card:hover .tv-lyric,
+.tv-card.is-active .tv-lyric { color: rgba(255,255,255,.6); }
+
+/* Bottom bar (track info) */
+.tv-bar {
+  background: rgba(0,0,0,.3);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255,180,80,.08);
+  border-radius: 0 0 7px 7px;
+}
+.tv-song {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: .9rem;
+  letter-spacing: .15em;
+  color: rgba(255,220,160,.5);
+  transition: color var(--dur-med) var(--ease-out);
+}
+.tv-card:hover .tv-song,
+.tv-card.is-active .tv-song { color: rgba(255,230,180,.85); }
+.tv-hint {
+  font-family: 'VT323', monospace;
+  font-size: .7rem;
+  letter-spacing: .22em;
+  color: rgba(255,180,80,.35);
+  text-transform: uppercase;
+}
+
+/* Spotify drawer */
+.tv-sp-wrap {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height var(--dur-med) var(--ease-in-out);
+  margin-top: 4px;
+  border-radius: 0 0 7px 7px;
+  background: rgba(0,0,0,.4);
+}
+.tv-card:hover .tv-sp-wrap,
+.tv-card.is-active .tv-sp-wrap { max-height: 100px; }
+.tv-sp-wrap iframe { width: 100%; border: none; display: block; }
+
+/* Placeholder for missing image */
+.tv-ph {
+  position: absolute; inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 6px; z-index: 1;
+  background: #1a0800;
+}
+.tv-ph span {
+  font-family: 'VT323', monospace;
+  font-size: .8rem;
+  color: rgba(255,180,80,.3);
+  letter-spacing: .18em;
+}
+.tv-ph-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255,180,80,.2);
+}
+
+/* ─── CLOSING ─────────────────────── */
+.closing {
+  position: relative; z-index: 10;
+  margin: 0 auto;
+  padding: var(--s-8) var(--s-6) var(--s-9);
+  max-width: var(--container-narrow);
+  border-top: 1px solid rgba(255,180,80,.1);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-6);
+  align-items: start;
+}
+.closing-quote {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.3vw, 1.22rem);
+  color: rgba(255,220,160,.55);
+  line-height: 2.1;
+  letter-spacing: .01em;
+}
+.closing-quote em {
+  font-style: normal;
+  color: rgba(255,235,195,.95);
+}
+.closing-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--s-2);
+}
+.closing-divider {
+  width: 28px; height: 1px;
+  background: rgba(255,180,80,.22);
+}
+.closing-sig {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: .14em;
+  color: rgba(255,180,80,.4);
+}
+.closing-time {
+  font-family: 'VT323', monospace;
+  font-size: .7rem;
+  letter-spacing: .24em;
+  color: rgba(255,180,80,.15);
+  text-transform: uppercase;
+  text-align: right;
+}
+
+/* ─── MOBILE ──────────────────────── */
+@media (max-width: 620px) {
+  .tv-grid {
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+    padding: 0 var(--s-4) var(--s-8);
+  }
+  .channel-bar { flex-wrap: wrap; }
+  .closing { grid-template-columns: 1fr; }
+  .closing-right { align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<!-- Preloader -->
+<div class="preloader" aria-hidden="true">
+  <div style="font-family:'VT323',monospace;font-size:1rem;letter-spacing:.3em;color:rgba(255,180,80,.45);">CHANNEL ORANGE</div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:.7rem;letter-spacing:.4em;color:rgba(255,180,80,.25);">tuning in…</div>
+  <div class="preloader-bar"></div>
+</div>
+
+<!-- Atmosphere -->
+<div class="atm-base" aria-hidden="true"></div>
+<div class="atm-photo" aria-hidden="true">
+  <img src="images/bg-frank.jpg" alt="" loading="lazy" decoding="async"
+       onerror="this.style.display='none'">
+</div>
+<div class="atm-vign" aria-hidden="true"></div>
+<div class="atm-light" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="scan" aria-hidden="true"></div>
+<div class="page-overlay" aria-hidden="true"></div>
+
+<!-- Back -->
+<button class="back-btn" data-action="back" data-href="index.html"
+        aria-label="Back to collection">
+  <span class="back-arrow" aria-hidden="true"></span>back
+</button>
+
+<!-- Header -->
+<header class="hdr" id="hdr">
+  <div class="hdr-rule" aria-hidden="true"></div>
+  <p class="hdr-eye">Vol. V · To Czarina</p>
+  <h1 class="hdr-title">Frank Ocean</h1>
+  <p class="hdr-sub">channels of you, tuned in late</p>
+  <div class="hdr-rule-bot" aria-hidden="true"></div>
+</header>
+
+<!-- Channel switcher -->
+<div class="channel-bar" role="tablist" aria-label="Channels">
+  <span class="channel-hint" aria-hidden="true">← → arrow keys to switch</span>
+  <button class="channel-btn is-active" role="tab" data-ch="1" aria-selected="true">Ch. 01</button>
+  <button class="channel-btn" role="tab" data-ch="2" aria-selected="false">Ch. 02</button>
+  <button class="channel-btn" role="tab" data-ch="3" aria-selected="false">Ch. 03</button>
+  <button class="channel-btn" role="tab" data-ch="4" aria-selected="false">Ch. 04</button>
+</div>
+
+<!-- TV grid -->
+<main id="main">
+  <h2 class="sr-only">Four channels, four songs — hover or tap to tune in</h2>
+  <ul class="tv-grid" id="tvGrid"></ul>
+
+  <!-- Closing -->
+  <aside class="closing js-reveal">
+    <p class="closing-quote">
+      you're the kind of person<br>
+      <em>songs are written about.</em><br>
+      lucky me, I get to keep you.
+    </p>
+    <div class="closing-right">
+      <div class="closing-divider" aria-hidden="true"></div>
+      <p class="closing-sig">— Jay</p>
+      <p class="closing-time">broadcast live, forever</p>
+    </div>
+  </aside>
+</main>
+
+<!-- Volume nav -->
+<nav class="vol-nav" aria-label="Volume navigation">
+  <span class="vol-nav-label">vol.</span>
+  <button type="button" data-vol-prev aria-label="Previous volume">‹</button>
+  <button type="button" data-vol-next aria-label="Next volume">›</button>
+</nav>
+
+<script src="shared.js"></script>
+<script>
+'use strict';
+
+(function() {
+const {
+  qs, qsa, esc,
+  isTouch,
+  initHeroReveal, buildSpotifyEmbed, initExclusiveActive,
+} = window.CzarinaSystem;
+
+/* ─── DATA ─── */
+const CHANNELS = [
+  {
+    ch: '01',
+    photo: 'images/photo1.jpeg',
+    phTxt: 'photo-01',
+    caption: 'you, in the amber light of a wednesday night',
+    lyric:   "close my eyes and fall into you\nmy god, she's giving me pleasure",
+    song: 'Pink Matter',
+    spotify: 'https://open.spotify.com/embed/track/1fOkmYW3ZFkkjIdOZSf596?utm_source=generator',
+  },
+  {
+    ch: '02',
+    photo: 'images/photo2.jpeg',
+    phTxt: 'photo-02',
+    caption: 'lazy afternoons feel like home with you',
+    lyric:   "keep a place for me, for me\ni'll sleep between y'all, it's nothing",
+    song: 'Sweet Life',
+    spotify: 'https://open.spotify.com/embed/track/3GZD6HmiNUhxXYf8Gch723?utm_source=generator',
+  },
+  {
+    ch: '03',
+    photo: 'images/photo3.jpeg',
+    phTxt: 'photo-03',
+    caption: "I'd stay here if you let me",
+    lyric:   "i've been thinking 'bout you\ndo you think about me still? do ya? do ya?",
+    song: 'Thinkin Bout You',
+    spotify: 'https://open.spotify.com/embed/track/4GUBLRFHcB1rpH9lLb7qBk?utm_source=generator',
+  },
+  {
+    ch: '04',
+    photo: 'images/photo4.jpeg',
+    phTxt: 'photo-04',
+    caption: 'every small moment is my favourite',
+    lyric:   "my fingertips and my lips\nthey burn from the cigarettes",
+    song: 'Ivy',
+    spotify: null,
+  },
+];
+
+/* ─── BUILD ─── */
+qs('#tvGrid').innerHTML = CHANNELS.map(c => {
+  return `
+    <li>
+      <button class="tv-card" type="button"
+              data-ch="${esc(c.ch)}" data-interactive data-song="${esc(c.song)}"
+              aria-label="Channel ${esc(c.ch)}: ${esc(c.song)} — tap to play">
+        <div class="tv">
+          <div class="tv-screen">
+            <img src="${esc(c.photo)}" alt=""
+                 loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="tv-ph" aria-hidden="true">
+              <div class="tv-ph-dot"></div>
+              <span>${esc(c.phTxt)}</span>
+            </div>
+            <div class="tv-tint" aria-hidden="true"></div>
+            <div class="tv-grad" aria-hidden="true"></div>
+            <div class="tv-text">
+              <div class="tv-channel">ch. ${esc(c.ch)}</div>
+              <p class="tv-cap">${esc(c.caption)}</p>
+              <p class="tv-lyric">${esc(c.lyric).replace(/\n/g, '<br>')}</p>
+            </div>
+          </div>
+          <div class="tv-bar">
+            <div class="tv-song">♩ ${esc(c.song)}</div>
+            <div class="tv-hint">hover to tune</div>
+          </div>
+          <div class="tv-sp-wrap">${buildSpotifyEmbed(c.spotify, c.song)}</div>
+        </div>
+      </button>
+    </li>`;
+}).join('');
+
+/* Update hint text for touch devices — "hover to tune" makes no sense on mobile */
+if (isTouch()) {
+  qsa('.tv-hint').forEach(el => { el.textContent = 'tap to tune'; });
+}
+
+/* ─── CHANNEL SWITCHER LOGIC ─── */
+const channelBtns = qsa('.channel-btn');
+const tvCards = qsa('.tv-card');
+let currentCh = 1;
+
+function setChannel(ch) {
+  if (ch < 1) ch = CHANNELS.length;
+  if (ch > CHANNELS.length) ch = 1;
+  currentCh = ch;
+
+  channelBtns.forEach(btn => {
+    const active = parseInt(btn.dataset.ch, 10) === ch;
+    btn.classList.toggle('is-active', active);
+    btn.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+
+  // Static transition on all TVs
+  document.body.classList.add('channel-changing');
+  setTimeout(() => document.body.classList.remove('channel-changing'), 280);
+
+  tvCards.forEach(card => {
+    card.classList.toggle('is-highlighted',
+      parseInt(card.dataset.ch, 10) === ch);
+  });
+
+  // Scroll the matching TV into view
+  const match = tvCards.find(c => parseInt(c.dataset.ch, 10) === ch);
+  if (match && window.innerWidth < 620) {
+    match.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+channelBtns.forEach(btn => {
+  btn.addEventListener('click', () => setChannel(parseInt(btn.dataset.ch, 10)));
+});
+
+/* ─── KEYBOARD — up/down arrows change channel ─── */
+document.addEventListener('keydown', e => {
+  if (e.target.matches('input, textarea, [contenteditable]')) return;
+  // use up/down for channel change (left/right is reserved for volume nav)
+  if (e.key === 'ArrowUp')   { e.preventDefault(); setChannel(currentCh + 1); }
+  else if (e.key === 'ArrowDown') { e.preventDefault(); setChannel(currentCh - 1); }
+});
+
+/* ─── TOUCH ─── */
+initExclusiveActive('.tv-card', {
+  onActivate: (el, isOn) => {
+    if (isOn) setChannel(parseInt(el.dataset.ch, 10));
+  },
+});
+
+/* ─── HERO REVEAL ─── */
+initHeroReveal({
+  duration: 1400,
+  reveals: [{ el: qs('#hdr') }],
+}).then(() => setChannel(1));
+
+})();
+</script>
+</body>
+</html>

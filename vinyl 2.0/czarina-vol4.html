@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a1610">
+<title>for Czarina — Vol. IV · The 1975</title>
+<meta name="description" content="Vol. IV — The 1975. The Czarina Chronicle, a love letter in newsprint.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Special+Elite&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   VOL IV — THE 1975 · The Czarina Chronicle
+═══════════════════════════════════════════════════════════ */
+:root {
+  --paper: #e8dcc4;
+  --paper-warm: #d9cba8;
+  --ink: #1a1610;
+  --ink-soft: #2e2820;
+  --accent: #8a3a2a;
+  --bg: #1a1610;
+
+  --focus-color: #1a1610;
+  --cursor-bg: rgba(26,22,16,.85);
+  --cursor-bg-hover: rgba(26,22,16,1);
+  --cursor-ring-color: rgba(26,22,16,.2);
+  --cursor-ring-hover: rgba(26,22,16,.5);
+  --preloader-bg: #e8dcc4;
+  --preloader-accent: rgba(26,22,16,.35);
+  --overlay-bg: #1a1610;
+  --back-color: rgba(26,22,16,.55);
+  --back-color-hover: #1a1610;
+  --grain-opacity: .18;
+  --grain-mix: multiply;
+}
+
+body {
+  background:
+    repeating-linear-gradient(0deg,
+      rgba(120,90,50,.03) 0px, rgba(120,90,50,.03) 1px,
+      transparent 1px, transparent 3px),
+    var(--paper);
+  font-family: 'Playfair Display', serif;
+  color: var(--ink);
+}
+
+/* Paper texture overlay */
+.paper-tex {
+  position: fixed; inset: 0; z-index: 1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% 50%, transparent 40%, rgba(120,90,50,.1) 100%),
+    repeating-linear-gradient(90deg,
+      rgba(180,140,80,.02) 0px, rgba(180,140,80,.02) 40px,
+      transparent 40px, transparent 80px);
+  mix-blend-mode: multiply;
+}
+
+/* ─── NEWSPAPER LAYOUT ────────────── */
+.paper {
+  position: relative; z-index: 10;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: var(--s-9) var(--s-6) var(--s-8);
+}
+
+/* ─── MASTHEAD ───────────────────── */
+.masthead {
+  border-bottom: 3px double var(--ink);
+  padding-bottom: var(--s-5);
+  margin-bottom: var(--s-6);
+  text-align: center;
+  position: relative;
+}
+.masthead-eye {
+  display: inline-block;
+  font-family: 'Special Elite', 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: .4em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border: 1px solid var(--ink);
+  margin-bottom: var(--s-5);
+}
+.masthead-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: clamp(2.8rem, 8vw, 5rem);
+  color: var(--ink);
+  letter-spacing: -.01em;
+  line-height: .95;
+  margin: 0;
+  font-variant: small-caps;
+}
+.masthead-title em {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  font-style: italic;
+  font-variant: normal;
+}
+.masthead-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--s-4);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--ink);
+  font-family: 'Special Elite', monospace;
+  font-size: 10px;
+  letter-spacing: .15em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+.masthead-meta .ctr { text-align: center; flex: 1; }
+
+/* ─── LEAD STORY ────────────────── */
+.lead {
+  border-bottom: 1px solid rgba(26,22,16,.3);
+  padding-bottom: var(--s-7);
+  margin-bottom: var(--s-7);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-6);
+  align-items: start;
+}
+.lead-deck {
+  grid-column: 1/-1;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin-bottom: var(--s-5);
+  text-align: center;
+  max-width: 640px;
+  margin-left: auto; margin-right: auto;
+}
+.lead-img {
+  border: 8px solid var(--paper);
+  box-shadow: 0 3px 12px rgba(0,0,0,.15);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  position: relative;
+  background: #1a1610;
+}
+.lead-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.15) brightness(.88);
+  transition: filter var(--dur-med) var(--ease-out);
+}
+.lead-img:hover img { filter: grayscale(1) contrast(1.06) brightness(.97); }
+.lead-img::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(0,0,0,.25) .5px, transparent 1px);
+  background-size: 2.5px 2.5px;
+  mix-blend-mode: multiply;
+  opacity: .35;
+}
+.lead-img-ph {
+  position: absolute; inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  color: rgba(232,220,196,.3);
+  font-size: .55rem;
+  letter-spacing: .25em;
+  font-family: 'Special Elite', monospace;
+}
+.lead-img-cap {
+  font-family: 'Special Elite', monospace;
+  font-size: 9px;
+  letter-spacing: .15em;
+  color: var(--ink-soft);
+  text-align: center;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+.lead-body {
+  font-family: 'Playfair Display', serif;
+  font-size: .98rem;
+  line-height: 1.75;
+  color: var(--ink);
+  column-count: 1;
+}
+.lead-body::first-letter {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 3.4em;
+  float: left;
+  line-height: .82;
+  margin: 4px 8px 0 0;
+  color: var(--ink);
+}
+.lead-byline {
+  font-family: 'Special Elite', monospace;
+  font-size: 10px;
+  letter-spacing: .22em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px solid rgba(26,22,16,.25);
+}
+
+/* ─── SECTION DIVIDER ───────────── */
+.section-div {
+  text-align: center;
+  margin: var(--s-6) 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: .5em;
+  color: var(--ink);
+  text-transform: uppercase;
+  position: relative;
+}
+.section-div::before,
+.section-div::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 28%;
+  height: 1px;
+  background: var(--ink);
+}
+.section-div::before { left: 0; }
+.section-div::after { right: 0; }
+
+/* ─── PULL QUOTE ───────────────── */
+.pullquote {
+  margin: var(--s-7) auto;
+  padding: var(--s-5) var(--s-6);
+  max-width: 640px;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.2rem, 2.8vw, 1.6rem);
+  line-height: 1.55;
+  color: var(--ink);
+  position: relative;
+}
+.pullquote::before {
+  content: '"';
+  position: absolute;
+  top: -20px; left: 20px;
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+  background: var(--paper);
+  padding: 0 8px;
+}
+.pullquote em {
+  font-style: normal;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ─── CARDS GRID ───────────────── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-6);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.card {
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  position: relative;
+  padding-top: var(--s-5);
+  border-top: 1px solid rgba(26,22,16,.25);
+}
+.card:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 6px;
+}
+.card-label {
+  font-family: 'Special Elite', monospace;
+  font-size: 10px;
+  letter-spacing: .22em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: var(--s-3);
+}
+.card-img {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  position: relative;
+  background: #1a1610;
+  margin-bottom: var(--s-3);
+}
+.card-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.15) brightness(.88);
+  transition: filter var(--dur-med) var(--ease-out),
+              transform var(--dur-med) var(--ease-out);
+}
+.card:hover .card-img img,
+.card.is-active .card-img img {
+  filter: grayscale(1) contrast(1.04) brightness(1);
+  transform: scale(1.03);
+}
+.card-img::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(0,0,0,.22) .5px, transparent 1px);
+  background-size: 2.5px 2.5px;
+  mix-blend-mode: multiply;
+  opacity: .45;
+  pointer-events: none;
+}
+.card-img-ph {
+  position: absolute; inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  color: rgba(232,220,196,.3);
+  font-size: .55rem;
+  letter-spacing: .25em;
+  font-family: 'Special Elite', monospace;
+}
+.card-head {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+  line-height: 1.25;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+.card-body {
+  font-family: 'Playfair Display', serif;
+  font-size: .92rem;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  margin-bottom: var(--s-3);
+}
+.card-byline {
+  font-family: 'Special Elite', monospace;
+  font-size: 9px;
+  letter-spacing: .2em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  padding-top: 8px;
+  border-top: 1px solid rgba(26,22,16,.2);
+}
+
+/* Spotify drawer */
+.spotify-drawer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--dur-med) var(--ease-in-out);
+  background: #1a1610;
+  margin-top: var(--s-3);
+}
+.card:hover .spotify-drawer,
+.card.is-active .spotify-drawer { max-height: 100px; }
+.spotify-drawer iframe { width: 100%; border: none; display: block; }
+
+/* ─── CLOSING ──────────────────── */
+.closing {
+  margin-top: var(--s-9);
+  padding: var(--s-7) var(--s-6);
+  border-top: 3px double var(--ink);
+  border-bottom: 3px double var(--ink);
+  text-align: center;
+  position: relative;
+}
+.closing-eye {
+  font-family: 'Special Elite', monospace;
+  font-size: 9px;
+  letter-spacing: .35em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  margin-bottom: var(--s-4);
+}
+.closing-quote {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 2.8vw, 1.45rem);
+  line-height: 1.8;
+  color: var(--ink);
+  max-width: 520px;
+  margin: 0 auto var(--s-5);
+}
+.closing-quote em {
+  font-style: normal;
+  color: var(--accent);
+  font-weight: 600;
+}
+.closing-sig {
+  font-family: 'Special Elite', monospace;
+  font-size: 10px;
+  letter-spacing: .28em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  padding-top: var(--s-3);
+  border-top: 1px solid rgba(26,22,16,.3);
+  display: inline-block;
+  padding-left: var(--s-4);
+  padding-right: var(--s-4);
+}
+
+/* ─── CONTINUED ON ─────────────── */
+.continued {
+  margin-top: var(--s-6);
+  text-align: right;
+  font-family: 'Special Elite', monospace;
+  font-size: 10px;
+  letter-spacing: .28em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+.continued::before {
+  content: '→ ';
+  color: var(--accent);
+}
+
+/* ─── MOBILE ──────────────────── */
+@media (max-width: 620px) {
+  .paper { padding: var(--s-8) var(--s-4) var(--s-7); }
+  .lead { grid-template-columns: 1fr; }
+  .card-grid { grid-template-columns: 1fr; gap: var(--s-5); }
+  .section-div::before, .section-div::after { width: 20%; }
+  .masthead-title { font-size: clamp(2rem, 11vw, 3rem); }
+}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<!-- Preloader -->
+<div class="preloader" aria-hidden="true">
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.5em;color:var(--ink);text-transform:uppercase;">The Czarina Chronicle</div>
+  <div style="font-family:'Special Elite',monospace;font-size:9px;letter-spacing:.22em;color:var(--ink-soft);text-transform:uppercase;">printing</div>
+  <div class="preloader-bar"></div>
+</div>
+
+<div class="paper-tex" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="page-overlay" aria-hidden="true"></div>
+
+<!-- Back -->
+<button class="back-btn" data-action="back" data-href="index.html"
+        aria-label="Back to collection">
+  <span class="back-arrow" aria-hidden="true"></span>back
+</button>
+
+<!-- Paper -->
+<article class="paper">
+
+  <!-- Masthead -->
+  <header class="masthead">
+    <div class="masthead-eye">Vol. IV · Love Edition</div>
+    <h1 class="masthead-title">The Czarina <em>Chronicle</em></h1>
+    <div class="masthead-meta">
+      <span>No. 04</span>
+      <span class="ctr">Mon–Sun · 24 Hours a Day · Always in Print</span>
+      <span>25¢</span>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Lead -->
+    <section class="lead js-reveal" aria-labelledby="lead-head">
+      <p class="lead-deck">
+        For over a year, one reporter has been quietly documenting the small, impossible fact of her.
+      </p>
+
+      <figure>
+        <div class="lead-img">
+          <img src="images/photo1.jpeg" alt="A quiet photograph of Czarina, the subject of this issue"
+               loading="lazy" decoding="async"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="lead-img-ph" aria-hidden="true">photo-1</div>
+        </div>
+        <figcaption class="lead-img-cap">▸ Subject: C. Photographed in natural light</figcaption>
+      </figure>
+
+      <div>
+        <p class="lead-body">
+          <span id="lead-head" class="sr-only">Feature story: About a girl</span>
+          She didn't arrive with a warning. She arrived the way summer does — all at once, without asking. Every album I've played since feels rearranged around her, as though the running order was always wrong and nobody noticed. This paper is my attempt to set the record straight. It is for her, and only her, and the fact that you're reading it means you stayed long enough to find the back page.
+        </p>
+        <p class="lead-byline">▸ By J. ·  filed with love</p>
+      </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="section-div" aria-hidden="true">Reviews &amp; Features</div>
+
+    <!-- Pull quote -->
+    <blockquote class="pullquote js-reveal">
+      Somewhere between the second and third verse,<br>
+      I realized <em>every love song is now about you.</em>
+    </blockquote>
+
+    <!-- Cards -->
+    <ul class="card-grid" id="cardGrid"></ul>
+
+    <!-- Continued -->
+    <p class="continued js-reveal">Continued, forever, on every page after this one</p>
+
+    <!-- Closing -->
+    <aside class="closing js-reveal">
+      <p class="closing-eye">▸ Editor's Note</p>
+      <p class="closing-quote">
+        you make <em>ordinary days</em><br>
+        feel like headlines.<br>
+        I'm writing this one for you.
+      </p>
+      <p class="closing-sig">— Jay · staff writer, devoted</p>
+    </aside>
+
+  </main>
+</article>
+
+<!-- Volume nav -->
+<nav class="vol-nav" aria-label="Volume navigation">
+  <span class="vol-nav-label">vol.</span>
+  <button type="button" data-vol-prev aria-label="Previous volume">‹</button>
+  <button type="button" data-vol-next aria-label="Next volume">›</button>
+</nav>
+
+<script src="shared.js"></script>
+<script>
+'use strict';
+
+(function() {
+const {
+  qs, qsa, esc,
+  initHeroReveal, buildSpotifyEmbed, initExclusiveActive,
+} = window.CzarinaSystem;
+
+/* ─── DATA ─── */
+const ARTICLES = [
+  {
+    photo:  'images/photo2.jpeg',
+    phTxt:  'photo-2',
+    label:  '▸ Arts · Review',
+    head:   'Album of the Year: Her, Again',
+    body:   'For the twentieth month in a row, the subject remains the most played record in this household. Critics agree it has aged beautifully. Repeat listens only deepen the fondness.',
+    byline: '▸ Filed from our kitchen, 11pm',
+    song:   'Somebody Else',
+    spotify: 'https://open.spotify.com/embed/track/5wfs2tUA92KH4MzHZ8zSWR?utm_source=generator',
+  },
+  {
+    photo:  'images/photo3.jpeg',
+    phTxt:  'photo-3',
+    label:  '▸ Lifestyle',
+    head:   'A Guide to Small Weekends',
+    body:   'Experts recommend doing less. Our correspondent reports that the best afternoons involve her, a window, and a soundtrack neither of us picks on purpose.',
+    byline: '▸ Filed from the living room couch',
+    song:   'Be My Mistake',
+    spotify: 'https://open.spotify.com/embed/track/4KFY26acTiOBsPfBmJAxWS?utm_source=generator',
+  },
+  {
+    photo:  'images/photo4.jpeg',
+    phTxt:  'photo-4',
+    label:  '▸ Travel',
+    head:   'Somewhere Quiet, Together',
+    body:   'We drove two hours for no reason. We came home with no photos worth posting. The trip was a success. Do not ask why. The why is her.',
+    byline: '▸ Filed from the passenger seat',
+    song:   'About You',
+    spotify: 'https://open.spotify.com/embed/track/6dBUzqjtbnIa1TwYbyw5CM?utm_source=generator',
+  },
+  {
+    photo:  'images/photo1.jpeg',
+    phTxt:  'photo-1',
+    label:  '▸ Weather',
+    head:   'Forecast: You, Indefinitely',
+    body:   'Conditions remain favourable with a high chance of staying in. Meteorologists attribute the trend to her laugh. Expect this weather to hold.',
+    byline: '▸ Filed under the covers',
+    song:   'Medicine',
+    spotify: null,
+  },
+];
+
+/* ─── BUILD ─── */
+qs('#cardGrid').innerHTML = ARTICLES.map((a, i) => {
+  return `
+    <li>
+      <button class="card js-reveal" type="button"
+              data-interactive data-song="${esc(a.song)}"
+              aria-label="${esc(a.head)} — tap to play ${esc(a.song)}">
+        <div class="card-label">${esc(a.label)}</div>
+        <div class="card-img">
+          <img src="${esc(a.photo)}" alt=""
+               loading="lazy" decoding="async"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="card-img-ph" aria-hidden="true">${esc(a.phTxt)}</div>
+        </div>
+        <h3 class="card-head">${esc(a.head)}</h3>
+        <p class="card-body">${esc(a.body)}</p>
+        <p class="card-byline">${esc(a.byline)} · ♩ ${esc(a.song)}</p>
+        <div class="spotify-drawer">${buildSpotifyEmbed(a.spotify, a.song)}</div>
+      </button>
+    </li>`;
+}).join('');
+
+/* ─── TOUCH ─── */
+initExclusiveActive('.card', { keyboard: false });
+
+/* ─── HERO REVEAL ─── */
+initHeroReveal({ duration: 1400 });
+
+})();
+</script>
+</body>
+</html>

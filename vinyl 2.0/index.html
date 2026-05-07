@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0908">
+<title>for Czarina — a record of us</title>
+<meta name="description" content="A record collection of songs, memories, and quiet confessions. One volume per artist who sounded like you.">
+
+<!-- Open Graph -->
+<meta property="og:title" content="for Czarina">
+<meta property="og:description" content="A record collection of songs, memories, and quiet confessions.">
+<meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;1,9..40,200&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   INDEX — the vinyl wall (landing page)
+═══════════════════════════════════════════════════════════ */
+
+/* Theme */
+:root {
+  --bg: #0e0c09;
+  --ink: #e8e0d0;
+  --ink-faint: rgba(232,224,208,.6);
+  --ink-ghost: rgba(232,224,208,.28);
+  --accent: rgba(255,210,140,.14);
+  --focus-color: #e8e0d0;
+  --cursor-bg: rgba(232,224,208,.55);
+  --cursor-bg-hover: rgba(232,224,208,.85);
+  --cursor-ring-color: rgba(232,224,208,.2);
+  --cursor-ring-hover: rgba(232,224,208,.4);
+  --preloader-bg: #0a0908;
+  --preloader-accent: rgba(232,224,208,.2);
+  --overlay-bg: #000;
+  --back-color: rgba(232,224,208,.4);
+  --back-color-hover: rgba(232,224,208,.85);
+  --grain-opacity: .38;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  min-height: 100dvh;
+}
+
+/* ─── OPENING SCREEN ─────────────────────── */
+.opening {
+  position: fixed; inset: 0;
+  background: #0a0908;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+.opening.is-gone { opacity: 0; pointer-events: none; }
+.opening-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 3vw, 1.8rem);
+  color: rgba(232,224,208,0);
+  letter-spacing: .04em;
+  text-align: center;
+  line-height: 2;
+  max-width: 520px;
+  padding: 0 var(--s-6);
+  transition: color var(--dur-slow) var(--ease-out);
+}
+.opening-text.is-visible { color: rgba(232,224,208,.72); }
+
+/* ─── BACKGROUND LAYERS ──────────────────── */
+.bg-img { position: fixed; inset: 0; z-index: 0; }
+.bg-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: .32;
+  filter: grayscale(30%) contrast(1.05) brightness(.75);
+}
+.bg-fallback {
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(180deg,
+      transparent 0px, transparent 3px,
+      rgba(0,0,0,.07) 3px, rgba(0,0,0,.07) 4px),
+    linear-gradient(160deg, #211f1a 0%, #18160f 40%, #1e1b14 100%);
+}
+.wall-seam {
+  position: fixed; top: 0; bottom: 0; left: 38%; width: 1px;
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    rgba(0,0,0,.22) 30%,
+    rgba(0,0,0,.22) 70%,
+    transparent 100%);
+  pointer-events: none; z-index: 2; opacity: .45;
+}
+.vignette {
+  position: fixed; inset: 0; z-index: 1;
+  background: radial-gradient(ellipse 72% 62% at 50% 45%,
+    transparent 32%, rgba(0,0,0,.72) 100%);
+  pointer-events: none;
+}
+.ceiling-light {
+  position: fixed; top: -200px; left: 30%;
+  width: 1200px; height: 700px; border-radius: 50%;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 30%, rgba(255,210,140,.14) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 60% at 50% 60%, rgba(255,200,120,.06) 0%, transparent 70%);
+  pointer-events: none; z-index: 3; filter: blur(20px);
+  /* Animated via JS to match time-of-day */
+}
+.fill-light {
+  position: fixed; bottom: -80px; right: 15%;
+  width: 600px; height: 400px; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(120,140,180,.04) 0%, transparent 70%);
+  pointer-events: none; z-index: 3;
+}
+
+/* ─── HEADER ─────────────────────────────── */
+header {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: var(--s-5) var(--s-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(to bottom, rgba(10,9,8,.94) 0%, transparent 100%);
+}
+.logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  color: rgba(232,224,208,.6);
+  letter-spacing: .05em;
+}
+.header-tag {
+  font-size: 10px; font-weight: 200;
+  letter-spacing: .4em;
+  color: rgba(232,224,208,.35);
+  text-transform: uppercase;
+}
+
+/* ─── MAIN SCENE ─────────────────────────── */
+.scene {
+  position: relative; z-index: 10;
+  min-height: 100dvh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: var(--s-9) var(--s-6);
+  opacity: 0;
+  transition: opacity 1s var(--ease-out);
+}
+.scene.is-visible { opacity: 1; }
+
+.scene-heading {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+.wall-note {
+  text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .88rem;
+  color: rgba(232,224,208,0);
+  letter-spacing: .06em;
+  margin-top: var(--s-6);
+  transition: color var(--dur-slow) var(--ease-out);
+  pointer-events: none;
+}
+.wall-note.is-visible { color: rgba(232,224,208,.4); }
+
+/* ─── NOW PLAYING (bottom) ──────────────── */
+.now-playing {
+  position: fixed;
+  bottom: var(--s-6);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--s-3);
+  align-items: center;
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
+  pointer-events: none;
+  z-index: 50;
+  white-space: nowrap;
+}
+.now-playing.is-visible { opacity: 1; }
+.np-label {
+  font-size: 9px; font-weight: 200;
+  letter-spacing: .45em;
+  color: rgba(232,224,208,.4);
+  text-transform: uppercase;
+}
+.np-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .95rem;
+  color: rgba(232,224,208,.65);
+  letter-spacing: .03em;
+  max-width: 60vw;
+  overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ─── HINT ───────────────────────────────── */
+.hint {
+  position: fixed;
+  bottom: var(--s-5);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-weight: 200;
+  letter-spacing: .45em;
+  color: rgba(232,224,208,.45);
+  text-transform: uppercase;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+/* Breathe starts only after the hint fades in, so animation does not
+   fight the opacity transition. animation-delay is set to match the
+   transition duration so breathe begins once the fade is complete. */
+.hint.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  animation: breathe 3.5s ease-in-out var(--dur-med) infinite;
+}
+.hint-line {
+  width: 1px; height: 18px;
+  background: rgba(232,224,208,.18);
+}
+@keyframes breathe {
+  0%, 100% { opacity: .35; }
+  50% { opacity: .6; }
+}
+
+/* ─── VINYL WALL ─────────────────────────── */
+.vinyl-wall {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+}
+.row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 4.5rem;
+  flex-wrap: nowrap;
+}
+.row + .row { margin-top: 2.5rem; }
+.mid-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: flex-end;
+  gap: 3.5rem;
+  width: 100%;
+  margin: 2.5rem 0;
+}
+.mid-col {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+/* ─── VINYL MOUNT ────────────────────────── */
+.vinyl-mount {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  text-decoration: none;
+  color: inherit;
+  transition: transform var(--dur-med) var(--ease-soft);
+  animation: mount-in 1s var(--ease-out) forwards;
+}
+@keyframes mount-in {
+  from {
+    opacity: 0;
+    transform: translateY(32px) rotate(var(--tilt, 0deg));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(var(--lift, 0px)) rotate(var(--tilt, 0deg));
+  }
+}
+
+/* Per-artist personality */
+.vm-cas  { width:210px; --tilt:-2.2deg; --lift:0px;   --glow:rgba(200,220,255,.08); --disc-bg:#0a0a0a; --label-bg:#0d0d0d; --label-bd:#1f1f1f; --label-color:rgba(255,255,255,.6);  --hover-tilt:-.8deg; --hover-lift:-12px; animation-delay:.10s; }
+.vm-dc   { width:195px; --tilt:.6deg;   --lift:-12px; --glow:rgba(80,100,255,.11);  --disc-bg:#0a0c1e; --label-bg:#0c0e22; --label-bd:#1e2240; --label-color:rgba(160,180,255,.7);  --hover-tilt:.2deg;  --hover-lift:-18px; animation-delay:.25s; }
+.vm-mac  { width:178px; --tilt:-1deg;   --lift:8px;   --glow:rgba(220,160,60,.10);  --disc-bg:#1a1005; --label-bg:#1e1408; --label-bd:#3a2810; --label-color:rgba(220,180,100,.7); --hover-tilt:-.4deg; --hover-lift:0px;   animation-delay:.40s; }
+.vm-t75  { width:200px; --tilt:2.4deg;  --lift:4px;   --glow:rgba(220,215,200,.07); --disc-bg:#2a2820; --label-bg:#252218; --label-bd:#3a3828; --label-color:rgba(232,224,208,.6);  --hover-tilt:1deg;   --hover-lift:-6px;  animation-delay:.55s; }
+.vm-fo   { width:192px; --tilt:-1.4deg; --lift:-8px;  --glow:rgba(255,120,20,.13);  --disc-bg:#1e0a00; --label-bg:#1e0e04; --label-bd:#4a2010; --label-color:rgba(255,160,80,.65);  --hover-tilt:-.6deg; --hover-lift:-14px; animation-delay:.70s; }
+.vm-nbhd { width:195px; --tilt:1.8deg;  --lift:-4px;  --glow:rgba(180,190,220,.09); --disc-bg:#080c14; --label-bg:#0a0e1a; --label-bd:#1a2030; --label-color:rgba(180,200,230,.65); --hover-tilt:.6deg;  --hover-lift:-10px; animation-delay:.40s; }
+.vm-am   { width:188px; --tilt:-1.6deg; --lift:-5px;  --glow:rgba(220,40,40,.09);   --disc-bg:#100808; --label-bg:#120909; --label-bd:#2e1010; --label-color:rgba(230,100,80,.6);   --hover-tilt:-.6deg; --hover-lift:-10px; animation-delay:.55s; }
+.vm-sec  { width:165px; --tilt:1.2deg;  --lift:12px;  --glow:rgba(200,160,80,.05);  --disc-bg:#0a0805; --label-bg:#120e08; --label-bd:#3a2810; --label-color:rgba(200,160,80,.3);   --hover-tilt:.5deg;  --hover-lift:6px;   animation-delay:.85s; }
+
+.vinyl-mount:hover,
+.vinyl-mount:focus-visible {
+  transform: rotate(var(--hover-tilt, 0deg)) translateY(var(--hover-lift, 0px));
+  z-index: 20;
+  outline: none;
+}
+.vinyl-mount:focus-visible .sleeve {
+  box-shadow:
+    0 8px 22px rgba(0,0,0,.75),
+    0 0 0 2px var(--focus-color);
+}
+
+/* Ambient glow */
+.vinyl-obj::before {
+  content: '';
+  position: absolute; inset: -30px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    var(--glow, rgba(255,255,255,.04)) 0%,
+    transparent 70%);
+  pointer-events: none; z-index: 0;
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+.vinyl-mount:hover .vinyl-obj::before,
+.vinyl-mount:focus-visible .vinyl-obj::before,
+.vinyl-mount.is-tapped .vinyl-obj::before { opacity: 1; }
+
+/* Nail */
+.nail {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #b0a080, #5a4a30 60%, #2a2010);
+  box-shadow:
+    0 1px 3px rgba(0,0,0,.8),
+    0 0 0 1px rgba(0,0,0,.5),
+    inset 0 1px 1px rgba(255,255,255,.15);
+  position: relative; z-index: 20;
+  margin-bottom: 4px;
+}
+.nail::after {
+  content: '';
+  position: absolute;
+  top: 9px; left: 50%;
+  transform: translateX(-50%);
+  width: 1px; height: 14px;
+  background: linear-gradient(to bottom, rgba(100,80,50,.6), transparent);
+}
+
+/* Vinyl object */
+.vinyl-obj { position: relative; width: 100%; padding-bottom: 100%; }
+.vinyl-obj > * { position: absolute; }
+
+/* Sleeve */
+.sleeve {
+  inset: 0;
+  border-radius: 3px;
+  z-index: 3;
+  overflow: hidden;
+  transition: transform var(--dur-med) var(--ease-soft);
+  box-shadow:
+    0 8px 22px rgba(0,0,0,.75),
+    0 2px 6px rgba(0,0,0,.5),
+    -3px 0 10px rgba(0,0,0,.3);
+}
+.vinyl-mount:hover .sleeve,
+.vinyl-mount:focus-visible .sleeve,
+.vinyl-mount.is-tapped .sleeve {
+  transform: translateX(-22px) translateY(-6px) rotate(-3deg);
+}
+.sleeve::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 3px;
+  background: linear-gradient(135deg, rgba(255,255,255,.05) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 2;
+}
+.sleeve-cover {
+  inset: 0; width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+.sleeve-placeholder {
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 8px; z-index: 1;
+}
+.sleeve-placeholder .ph-icon {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1px dashed currentColor;
+  opacity: .3;
+  position: relative;
+}
+.sleeve-placeholder .ph-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .5;
+}
+.sleeve-placeholder span {
+  font-size: 7px;
+  font-weight: 300;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  opacity: .3;
+}
+
+/* Placeholder bg */
+.cas-ph  { color: #fff;    background: #030303; }
+.dc-ph   { color: #a0b0ff; background: #060818; }
+.mac-ph  { color: #c8a860; background: #1a1208; }
+.t75-ph  { color: #e8e0d0; background: #0d0d0d; }
+.fo-ph   { color: #ff8c40; background: #1a0800; }
+.nbhd-ph { color: #a0b4dc; background: #060a12; }
+.am-ph   { color: #ff6050; background: #0e0606; }
+.sec-ph  { color: #c8a060; background: #0a0806; }
+
+/* Disc */
+.disc {
+  width: 93%; height: 93%;
+  top: 3.5%; left: 3.5%;
+  border-radius: 50%;
+  z-index: 2;
+  transform: translate(0, 0);
+  transition: transform var(--dur-med) var(--ease-soft);
+}
+.vinyl-mount:hover .disc,
+.vinyl-mount:focus-visible .disc,
+.vinyl-mount.is-tapped .disc {
+  transform: translate(28%, -3%);
+}
+.disc-inner {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  position: relative;
+  background: var(--disc-bg, #0a0a0a);
+  box-shadow:
+    0 4px 16px rgba(0,0,0,.9),
+    0 1px 4px rgba(0,0,0,.7),
+    inset 0 0 0 1px rgba(255,255,255,.03);
+}
+.disc-grooves {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 200deg at 40% 35%,
+      transparent 0deg, rgba(255,255,255,.06) 8deg,
+      transparent 16deg, rgba(255,255,255,.03) 28deg,
+      transparent 40deg, transparent 360deg),
+    repeating-radial-gradient(circle at 50% 50%,
+      #111 0px, #111 1.2px,
+      #1d1d1d 1.2px, #1d1d1d 2.4px,
+      #141414 2.4px, #141414 3.6px,
+      #0e0e0e 3.6px, #0e0e0e 4.8px);
+  animation: disc-spin 12s linear infinite paused;
+}
+.vinyl-mount:hover .disc-grooves,
+.vinyl-mount:focus-visible .disc-grooves,
+.vinyl-mount.is-tapped .disc-grooves {
+  animation-play-state: running;
+}
+@keyframes disc-spin {
+  to { transform: rotate(360deg); }
+}
+.disc-edge {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.04);
+  pointer-events: none;
+}
+.disc-label {
+  position: absolute;
+  width: 32%; height: 32%;
+  border-radius: 50%;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px; z-index: 5;
+  background: var(--label-bg, #0d0d0d);
+  border: 1px solid var(--label-bd, #1f1f1f);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.4);
+}
+.label-text {
+  font-size: 6px;
+  font-weight: 300;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.5;
+  color: var(--label-color, rgba(255,255,255,.5));
+}
+.disc-hole {
+  position: absolute;
+  width: 4.5%; height: 4.5%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #0a0a0a, #1a1a1a);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.9);
+}
+
+/* Secret vinyl */
+.vm-sec .nail { opacity: .3; }
+.vm-sec .vinyl-shadow { opacity: .2 !important; }
+.vm-sec .sleeve {
+  opacity: .35;
+  transition: opacity var(--dur-med) var(--ease-out),
+              transform var(--dur-med) var(--ease-soft);
+}
+.vm-sec:hover .sleeve,
+.vm-sec:focus-visible .sleeve { opacity: 1; }
+.vm-sec .disc { opacity: .4; }
+.vm-sec::after {
+  content: '';
+  position: absolute;
+  bottom: -24px; left: 50%;
+  transform: translateX(-50%);
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(200,160,80,0);
+  transition: background var(--dur-slow) var(--ease-out);
+  animation: breathe 3s ease-in-out infinite;
+}
+.vm-sec:hover::after,
+.vm-sec:focus-visible::after {
+  background: rgba(200,160,80,.4);
+}
+
+/* Shadow */
+.vinyl-shadow {
+  bottom: -14px; left: 50%;
+  transform: translateX(-50%);
+  width: 85%; height: 18px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.55);
+  filter: blur(8px);
+  z-index: 1;
+  transition: transform var(--dur-med) var(--ease-out),
+              opacity var(--dur-med) var(--ease-out);
+}
+.vinyl-mount:hover .vinyl-shadow,
+.vinyl-mount:focus-visible .vinyl-shadow,
+.vinyl-mount.is-tapped .vinyl-shadow {
+  transform: translateX(-20%) scaleX(.65);
+  opacity: .3;
+}
+
+/* Info below vinyl */
+.vinyl-info {
+  margin-top: 16px;
+  text-align: center;
+  min-height: 72px;
+  opacity: .45;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.vinyl-mount:hover .vinyl-info,
+.vinyl-mount:focus-visible .vinyl-info,
+.vinyl-mount.is-tapped .vinyl-info { opacity: 1; }
+.photo-frame .vinyl-info {
+  min-height: auto;
+  margin-top: 12px;
+}
+.photo-frame:hover .vinyl-info,
+.photo-frame:focus-visible .vinyl-info { opacity: 1; }
+
+.v-volume {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .7rem;
+  color: rgba(232,224,208,.55);
+  letter-spacing: .2em;
+  margin-bottom: 3px;
+}
+.v-volume[data-real]::before { content: 'vol. '; }
+.v-artist {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .95rem;
+  color: rgba(232,224,208,.85);
+}
+.v-reason {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .75rem;
+  color: rgba(232,224,208,.5);
+  letter-spacing: .02em;
+  line-height: 1.6;
+  max-width: 180px;
+  margin: 4px auto 0;
+}
+
+/* Photo frame (matchbox entry) */
+.photo-frame {
+  position: relative;
+  transform: rotate(-1.2deg);
+  transition: transform var(--dur-med) var(--ease-soft);
+  flex-shrink: 0;
+  text-decoration: none;
+  color: inherit;
+}
+.photo-frame:hover,
+.photo-frame:focus-visible {
+  transform: rotate(-.3deg) translateY(-5px);
+  outline: none;
+}
+.photo-frame:focus-visible .frame-border {
+  box-shadow:
+    0 8px 28px rgba(0,0,0,.6),
+    0 0 0 2px var(--focus-color);
+}
+.frame-nail {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #b0a080, #5a4a30 60%, #2a2010);
+  box-shadow:
+    0 1px 3px rgba(0,0,0,.8),
+    0 0 0 1px rgba(0,0,0,.5),
+    inset 0 1px 1px rgba(255,255,255,.15);
+  margin: 0 auto 5px;
+  position: relative; z-index: 20;
+}
+.frame-nail::after {
+  content: '';
+  position: absolute;
+  top: 8px; left: 50%;
+  transform: translateX(-50%);
+  width: 1px; height: 14px;
+  background: linear-gradient(to bottom, rgba(100,80,50,.5), transparent);
+}
+.frame-border {
+  background: #f5f0e8;
+  padding: 7px 7px 22px;
+  box-shadow:
+    0 8px 28px rgba(0,0,0,.6),
+    0 2px 8px rgba(0,0,0,.4),
+    inset 0 1px 0 rgba(255,255,255,.5);
+  position: relative;
+  transition: box-shadow var(--dur-med) var(--ease-out);
+}
+.frame-border::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.06) 0%, transparent 45%);
+  pointer-events: none;
+}
+.frame-img {
+  width: 180px;
+  object-fit: cover;
+  position: relative;
+  z-index: 1;
+  filter: sepia(.12) brightness(.92) contrast(1.02);
+}
+.frame-shadow {
+  position: absolute;
+  bottom: -14px; left: 50%;
+  transform: translateX(-50%);
+  width: 90%; height: 16px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.5);
+  filter: blur(8px);
+  z-index: 0;
+}
+
+/* ─── IDLE STATE ──────────────────────── */
+.idle-text {
+  position: fixed;
+  bottom: 5rem; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .85rem;
+  color: rgba(232,224,208,0);
+  letter-spacing: .06em;
+  text-align: center;
+  pointer-events: none;
+  z-index: 40;
+  transition: color 2s var(--ease-out);
+}
+.idle-text.is-visible { color: rgba(232,224,208,.45); }
+
+/* ─── TURNTABLE WIDGET ────────────────── */
+.turntable {
+  position: fixed;
+  bottom: var(--s-5); left: var(--s-5);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
+  pointer-events: none;
+}
+.turntable.is-visible { opacity: 1; }
+.tt-platter {
+  position: relative;
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, #1a1815 0%, #0d0c0a 100%);
+  box-shadow:
+    0 4px 16px rgba(0,0,0,.7),
+    0 1px 3px rgba(0,0,0,.5),
+    inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.tt-grooves {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 200deg at 40% 35%,
+      transparent 0deg, rgba(255,255,255,.05) 6deg,
+      transparent 12deg, rgba(255,255,255,.02) 22deg,
+      transparent 32deg, transparent 360deg),
+    repeating-radial-gradient(circle at 50% 50%,
+      #111 0px, #111 1px,
+      #1a1a1a 1px, #1a1a1a 2px,
+      #131313 2px, #131313 3px,
+      #0e0e0e 3px, #0e0e0e 4px);
+  animation: tt-spin 3s linear infinite paused;
+}
+.turntable.is-playing .tt-grooves { animation-play-state: running; }
+@keyframes tt-spin { to { transform: rotate(360deg); } }
+.tt-label {
+  position: absolute;
+  width: 36%; height: 36%;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--tt-label-color, #1a1410);
+  border: 1px solid rgba(255,255,255,.08);
+  transition: background var(--dur-med) var(--ease-out);
+}
+.tt-label::after {
+  content: '';
+  position: absolute;
+  width: 20%; height: 20%;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #080706;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.9);
+}
+.tt-arm {
+  position: absolute;
+  top: 4px; right: -4px;
+  width: 18px; height: 2px;
+  background: linear-gradient(to right, rgba(180,160,100,.5), rgba(140,120,70,.3));
+  border-radius: 1px;
+  transform-origin: right center;
+  transform: rotate(-28deg);
+  transition: transform var(--dur-slow) var(--ease-in-out);
+}
+.turntable.is-playing .tt-arm { transform: rotate(-18deg); }
+.tt-artist {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .62rem;
+  color: rgba(232,224,208,.4);
+  letter-spacing: .06em;
+  text-align: center;
+  max-width: 90px;
+  overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--dur-med) var(--ease-out);
+}
+.turntable.is-playing .tt-artist {
+  color: rgba(232,224,208,.65);
+}
+
+/* ─── EASTER EGG MODAL ──────────────── */
+.secret-modal {
+  position: fixed; inset: 0;
+  z-index: 9500;
+  background: rgba(10,9,8,.97);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s var(--ease-out);
+}
+.secret-modal.is-open {
+  opacity: 1;
+  pointer-events: all;
+}
+.secret-content {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 3vw, 1.6rem);
+  color: rgba(232,224,208,.8);
+  text-align: center;
+  line-height: 2.2;
+  max-width: 480px;
+  padding: var(--s-6);
+  letter-spacing: .04em;
+}
+.secret-content small {
+  font-size: .75em;
+  color: rgba(232,224,208,.55);
+}
+.secret-close {
+  font-size: .6em;
+  letter-spacing: .3em;
+  color: rgba(232,224,208,.4);
+  font-style: normal;
+  text-transform: uppercase;
+  margin-top: var(--s-6);
+  display: block;
+}
+
+/* ─── RESPONSIVE ──────────────────────── */
+@media (max-width: 900px) and (min-width: 481px) {
+  .scene { padding: var(--s-9) var(--s-5) var(--s-8); }
+  .row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2.5rem 2rem;
+  }
+  /* mid-row is a grid at desktop; switch to flex column at tablet so items stack
+     properly instead of trying to force flex-wrap onto a grid container */
+  .mid-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-6);
+  }
+  .mid-col { width: 100%; justify-content: center; }
+  .vm-cas  { width: 175px; } .vm-dc   { width: 162px; } .vm-mac  { width: 148px; }
+  .vm-t75  { width: 166px; } .vm-fo   { width: 160px; } .vm-nbhd { width: 162px; }
+  .vm-am   { width: 158px; } .vm-sec  { width: 138px; }
+  .frame-img { width: 155px; }
+  .ceiling-light { width: 700px; left: 25%; }
+  .now-playing { font-size: .8rem; }
+}
+
+@media (max-width: 480px) {
+  .scene { padding: 5rem var(--s-3) 5rem; }
+  .vinyl-wall { max-width: 100%; }
+  .row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s-6) var(--s-5);
+    justify-items: center;
+    align-items: end;
+  }
+  .row > .vinyl-mount:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+  .mid-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-5);
+  }
+  .mid-col { width: 100%; justify-content: center; }
+  .vm-cas, .vm-dc, .vm-mac, .vm-t75,
+  .vm-fo, .vm-nbhd, .vm-am, .vm-sec { width: 135px; }
+  .frame-img { width: 115px; }
+  .ceiling-light { width: 420px; left: 10%; top: -150px; }
+  .now-playing { display: none; }
+  .wall-seam, .idle-text { display: none; }
+  .vinyl-info { opacity: .7; }
+  .v-reason { display: none; }
+  header { padding: var(--s-4) var(--s-5); }
+  .header-tag { display: none; }
+  .turntable { display: none; }
+  .opening-text {
+    font-size: clamp(.95rem, 4.5vw, 1.2rem);
+    padding: 0 var(--s-5);
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Skip link -->
+<a href="#main" class="skip-link">Skip to content</a>
+
+<!-- Turntable widget -->
+<div class="turntable" id="turntable" aria-hidden="true">
+  <div class="tt-platter">
+    <div class="tt-grooves"></div>
+    <div class="tt-label" id="ttLabel"></div>
+    <div class="tt-arm"></div>
+  </div>
+  <div class="tt-artist" id="ttArtist"></div>
+</div>
+
+<!-- Opening sequence -->
+<div class="opening" id="opening" aria-hidden="true">
+  <p class="opening-text" id="openingText"></p>
+</div>
+
+<!-- Background -->
+<div class="bg-img" aria-hidden="true">
+  <img src="images/walls.jpg" alt="" loading="lazy" decoding="async"
+       onerror="this.style.display='none'">
+  <div class="bg-fallback"></div>
+</div>
+<div class="wall-seam" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="ceiling-light" aria-hidden="true"></div>
+<div class="fill-light" aria-hidden="true"></div>
+
+<!-- Transition overlay -->
+<div class="page-overlay" id="overlay" aria-hidden="true"></div>
+
+<!-- Idle hint -->
+<p class="idle-text" id="idleText">still here — pick one</p>
+
+<!-- Header -->
+<header>
+  <div class="logo">for Czarina</div>
+  <div class="header-tag">est. June 21, 2023</div>
+</header>
+
+<!-- Main scene -->
+<main class="scene" id="main">
+  <h1 class="scene-heading">A record of us — a collection in eight volumes</h1>
+  <div class="vinyl-wall" id="vinylWall">
+    <div class="row" id="row1"></div>
+    <div class="mid-row" id="midRow">
+      <div class="mid-col" id="midLeft"></div>
+
+      <a class="photo-frame" href="matchbox.html"
+         aria-label="Our table — a matchbox of memories"
+         data-transition
+         data-artist="Our Table">
+        <div class="frame-nail" aria-hidden="true"></div>
+        <div class="frame-border">
+          <div class="frame-shadow" aria-hidden="true"></div>
+          <img src="images/Matchbox.png"
+               class="frame-img"
+               alt="A small framed photograph of our matchbox collection"
+               loading="lazy" decoding="async">
+        </div>
+        <div class="vinyl-info">
+          <div class="v-volume">our table</div>
+          <div class="v-artist">Our Table</div>
+          <div class="v-reason">the things we collected along the way</div>
+        </div>
+      </a>
+
+      <div class="mid-col" id="midRight"></div>
+    </div>
+    <div class="row" id="row2"></div>
+  </div>
+  <p class="wall-note" id="wallNote">each one is a chapter. you are the story.</p>
+</main>
+
+<!-- Now playing -->
+<div class="now-playing" id="nowPlaying" aria-live="polite">
+  <span class="np-label">now considering</span>
+  <span class="np-text" id="npText"></span>
+</div>
+
+<!-- Hint -->
+<div class="hint" id="hint" aria-hidden="true">
+  <span id="hintText">hover a vinyl — click to enter</span>
+  <div class="hint-line"></div>
+</div>
+
+<!-- Secret modal -->
+<div class="secret-modal" id="secretModal" role="dialog"
+     aria-modal="true" aria-labelledby="secretLabel" aria-hidden="true">
+  <div class="secret-content">
+    <span id="secretLabel">you found it.</span><br><br>
+    <small>there's more coming.<br>because you deserve more than eight songs.</small>
+    <button class="secret-close" data-close>click anywhere to close</button>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════
+   INDEX — landing page behavior
+═══════════════════════════════════════════════════════════ */
+(function() {
+
+const {
+  qs, qsa, esc,
+  initModal, navigate,
+  prefersReducedMotion, isTouch,
+  managedRaf, initOpening, markTouchNavigated,
+} = window.CzarinaSystem;
+
+/* ─── VINYL DATA ─── */
+const VINYLS = [
+  {
+    row: 1, cls: 'vm-cas', href: 'czarina.html',
+    cover: 'images/cas1.1-cover.jpeg', vol: 'I',
+    artist: 'Cigarettes After Sex',
+    reason: 'because you make every quiet moment feel like this',
+    label: 'CAS', phCls: 'cas-ph', phTxt: 'cas-cover',
+  },
+  {
+    row: 1, cls: 'vm-dc', href: 'czarina-vol2.html',
+    cover: 'images/cover1.1-dc.jpeg', vol: 'II',
+    artist: 'Daniel Caesar',
+    reason: 'I kept thinking of you every time this played',
+    label: 'DC', phCls: 'dc-ph', phTxt: 'dc-cover',
+  },
+  {
+    row: 1, cls: 'vm-mac', href: 'czarina-vol3.html',
+    cover: 'images/mac-cover1.1.jpeg', vol: 'III',
+    artist: 'Mac DeMarco',
+    reason: 'lazy and warm, just like my favourite days with you',
+    label: 'MAC', phCls: 'mac-ph', phTxt: 'mac-cover',
+  },
+  {
+    row: 'midL', cls: 'vm-t75', href: 'czarina-vol4.html',
+    cover: 'images/cover1.1-1975.jpg', vol: 'IV',
+    artist: 'The 1975',
+    reason: 'for all the times you made me feel understood',
+    label: '1975', phCls: 't75-ph', phTxt: '1975-cover',
+  },
+  {
+    row: 'midR', cls: 'vm-fo', href: 'czarina-vol5.html',
+    cover: 'images/f.o.1-cover.jpg', vol: 'V',
+    artist: 'Frank Ocean',
+    reason: "because some songs only make sense when you're in love",
+    label: 'FO', phCls: 'fo-ph', phTxt: 'fo-cover',
+  },
+  {
+    row: 2, cls: 'vm-nbhd', href: 'czarina-vol6.html',
+    cover: 'images/nbhd-cover.jpg', vol: 'VI',
+    artist: 'The Neighbourhood',
+    reason: 'cold, quiet, and completely ours',
+    label: 'NBHD', phCls: 'nbhd-ph', phTxt: 'nbhd-cover',
+  },
+  {
+    row: 2, cls: 'vm-am', href: 'czarina-vol7.html',
+    cover: 'images/am-cover.jpeg', vol: 'VII',
+    artist: 'Arctic Monkeys',
+    reason: 'the nights you made feel endless',
+    label: 'AM', phCls: 'am-ph', phTxt: 'am-cover',
+  },
+  {
+    row: 2, cls: 'vm-sec', href: null,
+    cover: 'images/cover-secret.jpg', vol: '???',
+    artist: '???', reason: 'coming soon',
+    label: '?', phCls: 'sec-ph', phTxt: '???', secret: true,
+  },
+];
+
+/* ─── ARTIST COLORS ─── */
+const ARTIST_COLORS = {
+  'Cigarettes After Sex': '#0d0d0d',
+  'Daniel Caesar':        '#0c0e22',
+  'Mac DeMarco':          '#1e1408',
+  'The 1975':             '#252218',
+  'Frank Ocean':          '#1e0e04',
+  'The Neighbourhood':    '#0a0e1a',
+  'Arctic Monkeys':       '#120909',
+  'Our Table':            '#120e08',
+};
+
+/* ─── BUILD VINYL MARKUP ─── */
+function buildVinyl(v) {
+  const isReal = !v.secret;
+  const tag = v.href ? 'a' : 'div';
+  const attrs = v.href
+    ? `href="${esc(v.href)}" data-transition aria-label="Volume ${esc(v.vol)}: ${esc(v.artist)} — ${esc(v.reason)}"`
+    : `role="button" tabindex="0" aria-label="A secret volume, not yet revealed" data-secret`;
+
+  return `
+    <${tag} class="vinyl-mount ${v.cls}" ${attrs}
+       data-artist="${esc(v.artist)}">
+      <div class="nail" aria-hidden="true"></div>
+      <div class="vinyl-obj">
+        <div class="vinyl-shadow" aria-hidden="true"></div>
+        <div class="sleeve">
+          <img src="${esc(v.cover)}" class="sleeve-cover" alt=""
+               loading="lazy" decoding="async"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="sleeve-placeholder ${v.phCls}" aria-hidden="true">
+            <div class="ph-icon"></div>
+            <span>${esc(v.phTxt)}</span>
+          </div>
+        </div>
+        <div class="disc" aria-hidden="true">
+          <div class="disc-inner">
+            <div class="disc-grooves"></div>
+            <div class="disc-edge"></div>
+            <div class="disc-label">
+              <div class="label-text">${esc(v.label)}<br>${esc(v.vol.toLowerCase())}</div>
+            </div>
+            <div class="disc-hole"></div>
+          </div>
+        </div>
+      </div>
+      <div class="vinyl-info">
+        <div class="v-volume"${isReal ? ' data-real' : ''}>${esc(v.vol)}</div>
+        <div class="v-artist">${esc(v.artist)}</div>
+        <div class="v-reason">${esc(v.reason)}</div>
+      </div>
+    </${tag}>`;
+}
+
+/* ─── INJECT ─── */
+const slots = {
+  1:    qs('#row1'),
+  2:    qs('#row2'),
+  midL: qs('#midLeft'),
+  midR: qs('#midRight'),
+};
+VINYLS.forEach(v => slots[v.row].insertAdjacentHTML('beforeend', buildVinyl(v)));
+
+/* ─── OPENING SEQUENCE + TIME-AWARE GREETING ─── */
+const opening     = qs('#opening');
+const openingText = qs('#openingText');
+const scene       = qs('#main');
+const hint        = qs('#hint');
+const hintText    = qs('#hintText');
+const wallNote    = qs('#wallNote');
+const idleText    = qs('#idleText');
+
+(function setGreeting() {
+  const h = new Date().getHours();
+  const messages = {
+    morning:   'for the girl who made every morning\nworth waking for',
+    afternoon: 'for the girl who made every song\nsound different',
+    night:     'for the girl who made every late night\nfeel like home',
+  };
+  const key = h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'night';
+  openingText.innerHTML = esc(messages[key]).replace('\n', '<br>');
+})();
+
+if (isTouch()) hintText.textContent = 'tap a vinyl · tap again to enter';
+
+window.addEventListener('load', () => {
+  try {
+    initOpening({
+      sessionKey: 'czarina:opening-seen',
+      openingEl:  opening,
+      sceneEl:    scene,
+      hintEl:     hint,
+      hintClass:  'is-visible',
+      textEls:    [{ el: openingText }],
+      onDone: () => {
+        setTimeout(() => wallNote.classList.add('is-visible'), 1200);
+      },
+    });
+  } catch (err) {
+    // initOpening failed — remove the overlay and show the scene directly
+    // so the page is never left as a black screen.
+    if (opening) opening.remove();
+    scene.classList.add('is-visible');
+    hint.classList.add('is-visible');
+    console.error('[Czarina] initOpening failed, scene revealed as fallback:', err);
+  }
+});
+
+/* ─── NOW PLAYING + TURNTABLE ─── */
+const turntable  = qs('#turntable');
+const ttLabel    = qs('#ttLabel');
+const ttArtist   = qs('#ttArtist');
+const nowPlaying = qs('#nowPlaying');
+const npText     = qs('#npText');
+
+function onVinylEnter(artist) {
+  if (!artist) return;
+  npText.textContent = artist;
+  nowPlaying.classList.add('is-visible');
+  resetIdle();
+  ttArtist.textContent = artist;
+  ttLabel.style.setProperty('--tt-label-color',
+    ARTIST_COLORS[artist] || '#1a1410');
+  turntable.classList.add('is-visible', 'is-playing');
+}
+function onVinylLeave() {
+  nowPlaying.classList.remove('is-visible');
+  turntable.classList.remove('is-playing');
+  setTimeout(() => {
+    if (!turntable.classList.contains('is-playing')) {
+      turntable.classList.remove('is-visible');
+    }
+  }, 600);
+}
+
+/* Event delegation for hover + focus + tap */
+document.addEventListener('mouseover', e => {
+  const mount = e.target.closest('.vinyl-mount, .photo-frame');
+  if (mount) onVinylEnter(mount.dataset.artist);
+});
+document.addEventListener('mouseout', e => {
+  const mount = e.target.closest('.vinyl-mount, .photo-frame');
+  const related = e.relatedTarget?.closest?.('.vinyl-mount, .photo-frame');
+  if (mount && mount !== related) onVinylLeave();
+});
+document.addEventListener('focusin', e => {
+  const mount = e.target.closest('.vinyl-mount, .photo-frame');
+  if (mount) onVinylEnter(mount.dataset.artist);
+});
+document.addEventListener('focusout', e => {
+  const mount = e.target.closest('.vinyl-mount, .photo-frame');
+  if (mount) onVinylLeave();
+});
+
+/* ─── TOUCH: two-phase tap interaction ───────────────────
+   Phase 1 (first tap on a vinyl): preview
+     • add .is-tapped  → sleeve slides, disc spins, glow appears
+     • call onVinylEnter → now-playing + turntable show
+   Phase 2 (second tap on the SAME vinyl): navigate
+   Tapping a DIFFERENT vinyl: switch preview to that vinyl
+   Tapping OUTSIDE any vinyl: collapse preview
+   Desktop hover behavior is completely unchanged.
+─────────────────────────────────────────────────────── */
+if (isTouch()) {
+  let previewMount = null; // the vinyl currently in preview state
+
+  function collapsePreview() {
+    if (!previewMount) return;
+    previewMount.classList.remove('is-tapped');
+    onVinylLeave();
+    previewMount = null;
+  }
+
+  document.addEventListener('touchend', e => {
+    const mount = e.target.closest('.vinyl-mount[href]');
+
+    // Tap landed outside every vinyl — collapse any open preview
+    if (!mount) {
+      collapsePreview();
+      return;
+    }
+
+    e.preventDefault();
+
+    // Phase 2: second tap on the vinyl already in preview → navigate
+    if (mount === previewMount) {
+      const touch = e.changedTouches[0];
+      const cx = touch
+        ? touch.clientX
+        : mount.getBoundingClientRect().left + mount.offsetWidth  / 2;
+      const cy = touch
+        ? touch.clientY
+        : mount.getBoundingClientRect().top  + mount.offsetHeight / 2;
+
+      // Record touch so the shared click guard suppresses the synthetic click
+      markTouchNavigated();
+
+      // Clean up preview state before navigating
+      collapsePreview();
+      navigate(mount.getAttribute('href'), { clientX: cx, clientY: cy });
+      return;
+    }
+
+    // Phase 1: first tap, or tap on a different vinyl — enter preview
+    collapsePreview();        // close any previous preview first
+    previewMount = mount;
+    mount.classList.add('is-tapped');
+    onVinylEnter(mount.dataset.artist);
+  }, { passive: false });
+}
+
+/* ─── IDLE STATE ─── */
+let idleTimer;
+function resetIdle() {
+  idleText.classList.remove('is-visible');
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => {
+    idleText.classList.add('is-visible');
+    const mounts = qsa('.vinyl-mount:not(.vm-sec)');
+    const pick = mounts[Math.floor(Math.random() * mounts.length)];
+    const groove = pick?.querySelector('.disc-grooves');
+    if (groove) groove.style.animationPlayState = 'running';
+    setTimeout(() => {
+      if (groove) groove.style.animationPlayState = '';
+      idleText.classList.remove('is-visible');
+    }, 5000);
+  }, 18000);
+}
+document.addEventListener('mousemove', resetIdle, { passive: true });
+document.addEventListener('keydown', resetIdle);
+resetIdle();
+
+/* ─── TIME-AWARE AMBIENT LIGHT ─── */
+(function setAmbientLight() {
+  const h = new Date().getHours();
+  const light = qs('.ceiling-light');
+  if (!light) return;
+  const gradients = {
+    morning:   'radial-gradient(ellipse 60% 50% at 50% 30%,rgba(255,230,180,.2) 0%,transparent 55%),radial-gradient(ellipse 80% 60% at 50% 60%,rgba(220,210,190,.09) 0%,transparent 70%)',
+    afternoon: 'radial-gradient(ellipse 60% 50% at 50% 30%,rgba(255,215,150,.17) 0%,transparent 55%),radial-gradient(ellipse 80% 60% at 50% 60%,rgba(255,200,120,.07) 0%,transparent 70%)',
+    night:     'radial-gradient(ellipse 60% 50% at 50% 30%,rgba(255,190,100,.12) 0%,transparent 55%),radial-gradient(ellipse 80% 60% at 50% 60%,rgba(200,140,80,.06) 0%,transparent 70%)',
+  };
+  light.style.background = h < 12 ? gradients.morning
+                         : h < 18 ? gradients.afternoon
+                         : gradients.night;
+})();
+
+/* ─── SUBTLE PARALLAX (skip on reduced motion + touch) ─── */
+if (!prefersReducedMotion() && !isTouch()) {
+  const r1  = qs('#row1');
+  const mid = qs('#midRow');
+  const r2  = qs('#row2');
+  let tx = 0, ty = 0;
+
+  const parallax = managedRaf(function() {
+    if (r1)  r1.style.transform  = 'translate(' + (tx * .6)  + 'px,' + (ty * .4) + 'px)';
+    if (mid) mid.style.transform = 'translate(' + (tx * .75) + 'px,' + (ty * .5) + 'px)';
+    if (r2)  r2.style.transform  = 'translate(' + (tx * .9)  + 'px,' + (ty * .6) + 'px)';
+  });
+
+  document.addEventListener('mousemove', e => {
+    tx = (e.clientX / window.innerWidth  - .5) * 6;
+    ty = (e.clientY / window.innerHeight - .5) * 4;
+    if (!parallax.running) parallax.start();
+  }, { passive: true });
+}
+
+/* ─── SECRET EASTER EGG — triple-click or Enter ─── */
+(function initSecret() {
+  const secret = qs('.vm-sec');
+  const modal = qs('#secretModal');
+  if (!secret || !modal) return;
+
+  const secretModal = initModal(modal);
+  let n = 0, t;
+
+  const trigger = () => { n = 0; secretModal.open(); };
+
+  secret.addEventListener('click', e => {
+    e.preventDefault();
+    n++;
+    clearTimeout(t);
+    t = setTimeout(() => n = 0, 1200);
+    if (n >= 3) trigger();
+  });
+
+  secret.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      trigger();
+    }
+  });
+})();
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0e0606">
+<title>for Czarina — Vol. VII · Arctic Monkeys</title>
+<meta name="description" content="Vol. VII — Arctic Monkeys. Late-night monologues, only to you.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:ital,wght@0,200;0,300;1,200&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   VOL VII — ARCTIC MONKEYS · mirrored, like the AM waveform
+═══════════════════════════════════════════════════════════ */
+:root {
+  --bg: #0e0606;
+  --ink: #f0c4c0;
+  --ink-soft: rgba(240,196,192,.75);
+  --ink-faint: rgba(240,196,192,.35);
+  --accent: #c84040;
+  --focus-color: #ff8080;
+  --cursor-bg: rgba(255,120,100,.6);
+  --cursor-bg-hover: rgba(255,180,160,.95);
+  --cursor-ring-color: rgba(255,120,100,.25);
+  --cursor-ring-hover: rgba(255,120,100,.5);
+  --preloader-bg: #0e0606;
+  --preloader-accent: rgba(255,120,100,.4);
+  --overlay-bg: #0a0404;
+  --back-color: rgba(255,120,100,.45);
+  --back-color-hover: rgba(255,180,160,.95);
+  --grain-opacity: .2;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  font-weight: 300;
+}
+
+/* ─── ATMOSPHERE ─────────────────── */
+.atm-base {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%,
+      rgba(70,10,15,.42) 0%, rgba(30,6,8,.15) 45%,
+      rgba(10,4,4,0) 80%),
+    #0e0606;
+}
+.atm-vign {
+  position: fixed; inset: 0; z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(ellipse 95% 80% at 50% 50%,
+    transparent 28%, rgba(0,0,0,.85) 100%);
+}
+.atm-glow {
+  position: fixed;
+  bottom: -120px; left: 50%;
+  transform: translateX(-50%);
+  width: 900px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse,
+    rgba(200,40,40,.15) 0%, transparent 65%);
+  pointer-events: none; z-index: 1;
+  filter: blur(60px);
+}
+
+/* ─── HERO ───────────────────────── */
+.hero {
+  position: relative; z-index: 10;
+  width: 100%;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-9) var(--s-6) var(--s-6);
+  text-align: center;
+}
+.hero-content {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 1.2s var(--ease-out), transform 1.2s var(--ease-out);
+}
+.hero-content.is-on { opacity: 1; transform: translateY(0); }
+
+.hero-eyebrow {
+  font-size: 10px;
+  font-weight: 200;
+  letter-spacing: .55em;
+  color: rgba(255,120,100,.5);
+  text-transform: uppercase;
+  margin-bottom: var(--s-5);
+}
+.hero-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3.5rem, 12vw, 7rem);
+  font-weight: 400;
+  color: rgba(255,220,210,.95);
+  letter-spacing: .04em;
+  line-height: .9;
+  margin: 0;
+  position: relative;
+  display: inline-block;
+}
+.hero-title::after {
+  content: 'AM';
+  position: absolute;
+  top: 105%; left: 50%;
+  transform: translateX(-50%) scaleY(-1);
+  font: inherit;
+  color: rgba(200,40,40,.12);
+  letter-spacing: .04em;
+  pointer-events: none;
+  line-height: .9;
+  filter: blur(1px);
+}
+.hero-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.4vw, 1.25rem);
+  color: rgba(255,180,160,.5);
+  margin-top: var(--s-7);
+  letter-spacing: .02em;
+}
+
+/* ─── WAVEFORM DIVIDER ──────────── */
+.waveform {
+  position: relative; z-index: 10;
+  margin: var(--s-6) auto var(--s-7);
+  max-width: 720px;
+  padding: 0 var(--s-5);
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity 1.5s var(--ease-out);
+}
+.waveform.is-on { opacity: 1; }
+.wf-bar {
+  width: 2px;
+  background: linear-gradient(to bottom,
+    rgba(255,120,100,.1) 0%,
+    rgba(255,120,100,.5) 50%,
+    rgba(255,120,100,.1) 100%);
+  border-radius: 1px;
+  animation: wf-pulse 2.4s ease-in-out infinite;
+}
+@keyframes wf-pulse {
+  0%, 100% { transform: scaleY(.3); }
+  50%      { transform: scaleY(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wf-bar { animation: none; transform: scaleY(.55); }
+}
+
+/* ─── MIRRORED SONG ROWS ───────── */
+.am-tracks {
+  position: relative; z-index: 10;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 var(--s-5) var(--s-8);
+  list-style: none;
+}
+.am-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  gap: 0;
+  border-top: 1px solid rgba(255,120,100,.08);
+  position: relative;
+}
+.am-row:last-child { border-bottom: 1px solid rgba(255,120,100,.08); }
+
+/* The vertical center line (the AM mirror axis) */
+.am-row::before {
+  content: '';
+  position: absolute;
+  top: 15%; bottom: 15%;
+  left: 50%;
+  width: 1px;
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    rgba(255,120,100,.2) 20%,
+    rgba(255,120,100,.2) 80%,
+    transparent 100%);
+}
+
+.am-track {
+  background: transparent;
+  border: none;
+  padding: var(--s-6) var(--s-5);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.am-track:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: -4px;
+}
+.am-track:hover,
+.am-track.is-active {
+  background: rgba(200,40,40,.04);
+}
+/* Alternating sides: odd rows, track on left; even rows, track on right */
+.am-row:nth-child(odd)  .am-track { grid-column: 1; text-align: right; padding-right: var(--s-6); }
+.am-row:nth-child(even) .am-track { grid-column: 2; text-align: left;  padding-left:  var(--s-6); }
+
+.am-row:nth-child(odd)  .am-photo { grid-column: 2; }
+.am-row:nth-child(even) .am-photo { grid-column: 1; }
+
+.am-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.5rem, 7vw, 4rem);
+  letter-spacing: .04em;
+  color: rgba(255,120,100,.18);
+  line-height: .9;
+  margin-bottom: var(--s-3);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.am-track:hover .am-num,
+.am-track.is-active .am-num { color: rgba(255,120,100,.5); }
+.am-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  color: rgba(255,220,210,.92);
+  line-height: 1.2;
+  margin-bottom: var(--s-3);
+  letter-spacing: .01em;
+}
+.am-lyric {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .84rem;
+  font-weight: 200;
+  font-style: italic;
+  color: rgba(240,196,192,.42);
+  line-height: 1.7;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: 0;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.am-row:nth-child(even) .am-lyric { margin-right: auto; margin-left: 0; }
+.am-track:hover .am-lyric,
+.am-track.is-active .am-lyric { color: rgba(240,196,192,.7); }
+
+.am-meta {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: .82rem;
+  letter-spacing: .18em;
+  color: rgba(255,120,100,.4);
+  text-transform: uppercase;
+  margin-top: var(--s-4);
+}
+
+/* Photo */
+.am-photo {
+  position: relative;
+  overflow: hidden;
+  background: #1a0808;
+  aspect-ratio: 1 / 1;
+}
+.am-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: brightness(.52) contrast(1.14) saturate(1.1) hue-rotate(-10deg);
+  transition: filter var(--dur-med) var(--ease-out),
+              transform var(--dur-med) var(--ease-out);
+}
+.am-track:hover + .am-photo img,
+.am-track.is-active + .am-photo img,
+.am-photo:has(+ .am-track:hover) img,
+.am-photo:has(+ .am-track.is-active) img,
+.am-photo.is-mirrored-active img {
+  filter: brightness(.72) contrast(1.06) saturate(1.18) hue-rotate(-5deg);
+  transform: scale(1.04);
+}
+.am-photo::after {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 50%, transparent 30%, rgba(10,4,4,.6) 100%),
+    linear-gradient(135deg, rgba(200,40,40,.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+.am-ph {
+  position: absolute; inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: #1a0808;
+  color: rgba(255,120,100,.25);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: .7rem;
+  letter-spacing: .25em;
+}
+
+/* Spotify drawer — full row width below */
+.am-sp-wrap {
+  grid-column: 1 / -1;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--dur-med) var(--ease-in-out);
+  background: rgba(0,0,0,.3);
+}
+.am-row:hover .am-sp-wrap,
+.am-row.is-active .am-sp-wrap { max-height: 100px; }
+.am-sp-wrap iframe { width: 100%; border: none; display: block; }
+
+/* ─── PULL QUOTE ─────────────────── */
+.pullquote {
+  position: relative; z-index: 10;
+  margin: var(--s-8) auto;
+  max-width: 640px;
+  padding: var(--s-7) var(--s-6);
+  text-align: center;
+  border-top: 1px solid rgba(255,120,100,.12);
+  border-bottom: 1px solid rgba(255,120,100,.12);
+}
+.pullquote p {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1.15rem, 2.8vw, 1.5rem);
+  color: rgba(255,220,210,.75);
+  line-height: 1.75;
+  letter-spacing: .01em;
+}
+.pullquote em {
+  font-style: normal;
+  color: rgba(255,140,120,.9);
+}
+
+/* ─── CLOSING ────────────────────── */
+.closing {
+  position: relative; z-index: 10;
+  margin: 0 auto;
+  padding: var(--s-7) var(--s-6) var(--s-9);
+  max-width: var(--container-narrow);
+  text-align: center;
+}
+.closing-rule {
+  width: 40px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,120,100,.3), transparent);
+  margin: 0 auto var(--s-6);
+}
+.closing-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 2.5vw, 1.3rem);
+  color: rgba(255,180,160,.55);
+  line-height: 2.1;
+  margin-bottom: var(--s-5);
+}
+.closing-quote em {
+  font-style: normal;
+  color: rgba(255,220,210,.9);
+}
+.closing-divider {
+  width: 24px; height: 1px;
+  background: rgba(255,120,100,.25);
+  margin: 0 auto var(--s-4);
+}
+.closing-sig {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: .95rem;
+  letter-spacing: .4em;
+  color: rgba(255,120,100,.4);
+  text-transform: uppercase;
+}
+
+/* ─── MOBILE ──────────────────── */
+@media (max-width: 620px) {
+  .am-row {
+    grid-template-columns: 1fr;
+  }
+  .am-row::before { display: none; }
+  .am-row:nth-child(odd)  .am-track,
+  .am-row:nth-child(even) .am-track {
+    grid-column: 1;
+    text-align: left;
+    padding: var(--s-5);
+    order: 2;
+  }
+  .am-row:nth-child(odd)  .am-photo,
+  .am-row:nth-child(even) .am-photo {
+    grid-column: 1;
+    order: 1;
+    aspect-ratio: 16 / 10;
+  }
+  .am-lyric { margin-left: 0 !important; margin-right: auto !important; }
+  .hero { min-height: 65vh; }
+}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<!-- Preloader -->
+<div class="preloader" aria-hidden="true">
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.12em;color:rgba(255,180,160,.7);">AM</div>
+  <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.9rem;color:rgba(255,120,100,.35);letter-spacing:.05em;">tuning in</div>
+  <div class="preloader-bar"></div>
+</div>
+
+<!-- Atmosphere -->
+<div class="atm-base" aria-hidden="true"></div>
+<div class="atm-vign" aria-hidden="true"></div>
+<div class="atm-glow" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="page-overlay" aria-hidden="true"></div>
+
+<!-- Back -->
+<button class="back-btn" data-action="back" data-href="index.html"
+        aria-label="Back to collection">
+  <span class="back-arrow" aria-hidden="true"></span>back
+</button>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="hero-content" id="heroContent">
+    <p class="hero-eyebrow">Vol. VII · To Czarina</p>
+    <h1 class="hero-title" aria-label="Arctic Monkeys">AM</h1>
+    <p class="hero-sub">late-night monologues, only to you</p>
+  </div>
+</header>
+
+<!-- Waveform -->
+<div class="waveform" id="waveform" aria-hidden="true"></div>
+
+<!-- Tracks -->
+<main id="main">
+  <h2 class="sr-only">Four tracks, mirrored like an AM waveform</h2>
+  <ul class="am-tracks" id="amTracks"></ul>
+
+  <!-- Pull quote -->
+  <section class="pullquote js-reveal" aria-label="Pull-quote">
+    <p>
+      I wanted to be something<br>
+      <em>only you would recognize.</em>
+    </p>
+  </section>
+
+  <aside class="closing js-reveal">
+    <div class="closing-rule" aria-hidden="true"></div>
+    <p class="closing-quote">
+      there are songs I can't hear anymore<br>
+      without thinking of <em>you.</em><br><br>
+      I don't mind.<br>
+      I was <em>hoping that would happen.</em>
+    </p>
+    <div class="closing-divider" aria-hidden="true"></div>
+    <p class="closing-sig">— Jay</p>
+  </aside>
+</main>
+
+<!-- Volume nav -->
+<nav class="vol-nav" aria-label="Volume navigation">
+  <span class="vol-nav-label">vol.</span>
+  <button type="button" data-vol-prev aria-label="Previous volume">‹</button>
+  <button type="button" data-vol-next aria-label="Next volume">›</button>
+</nav>
+
+<script src="shared.js"></script>
+<script>
+'use strict';
+
+(function() {
+const {
+  qs, qsa, esc,
+  initHeroReveal, buildSpotifyEmbed, initExclusiveActive,
+} = window.CzarinaSystem;
+
+/* ─── DATA ─── */
+const TRACKS = [
+  {
+    photo: 'images/photo1.jpeg', phTxt: 'photo-01',
+    num: '01',
+    name: 'Do I Wanna Know?',
+    lyric: "crawling back to you\never thought of calling when I've had a few",
+    meta: '2:32 AM · thinking',
+    song: 'Do I Wanna Know?',
+    spotify: 'https://open.spotify.com/embed/track/5FVd6KXrgO9B3JPmC8OPst?utm_source=generator',
+  },
+  {
+    photo: 'images/photo2.jpeg', phTxt: 'photo-02',
+    num: '02',
+    name: 'I Wanna Be Yours',
+    lyric: "let me be your vacuum cleaner, breathing in your dust\nlet me be your Ford Cortina, I will never rust",
+    meta: '11:47 PM · confessing',
+    song: 'I Wanna Be Yours',
+    spotify: 'https://open.spotify.com/embed/track/5XeFesFbtLpXzIVDNQP22n?utm_source=generator',
+  },
+  {
+    photo: 'images/photo3.jpeg', phTxt: 'photo-03',
+    num: '03',
+    name: '505',
+    lyric: "I'm going back to 505\nif it's a seven-hour flight or a forty-five minute drive",
+    meta: '3:15 AM · coming home',
+    song: '505',
+    spotify: 'https://open.spotify.com/embed/track/0BxE4FqsDD1Ot4YuBXwAPp?utm_source=generator',
+  },
+  {
+    photo: 'images/photo4.jpeg', phTxt: 'photo-04',
+    num: '04',
+    name: 'Snap Out of It',
+    lyric: "and now I've got the feeling\nthat you might wanna snap out of it",
+    meta: '1:08 AM · hoping',
+    song: 'Snap Out of It',
+    spotify: null,
+  },
+];
+
+/* ─── BUILD ─── */
+qs('#amTracks').innerHTML = TRACKS.map((t, i) => {
+  return `
+    <li class="am-row js-reveal" data-interactive data-song="${esc(t.song)}">
+      <button class="am-track" type="button"
+              aria-label="Track ${esc(t.num)}: ${esc(t.name)} — tap to play">
+        <div class="am-num">${esc(t.num)}</div>
+        <h3 class="am-name">${esc(t.name)}</h3>
+        <p class="am-lyric">${esc(t.lyric).replace(/\n/g, '<br>')}</p>
+        <p class="am-meta">${esc(t.meta)}</p>
+      </button>
+      <div class="am-photo">
+        <img src="${esc(t.photo)}" alt=""
+             loading="lazy" decoding="async"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="am-ph" aria-hidden="true">${esc(t.phTxt)}</div>
+      </div>
+      <div class="am-sp-wrap">${buildSpotifyEmbed(t.spotify, t.song)}</div>
+    </li>`;
+}).join('');
+
+/* ─── TOUCH ─── */
+initExclusiveActive('.am-row', {
+  groupSelector: '.am-row',
+  onActivate: (row, isOn) => {
+    const btn   = row.querySelector('.am-track');
+    const photo = row.querySelector('.am-photo');
+    if (btn)   btn.classList.toggle('is-active', isOn);
+    // Mirror photo state on touch — covers both odd and even row layouts
+    if (photo) photo.classList.toggle('is-mirrored-active', isOn);
+  },
+});
+
+/* Mirror photo active state on hover/focus — vol7 specific */
+qsa('.am-row').forEach(row => {
+  const track = row.querySelector('.am-track');
+  const photo = row.querySelector('.am-photo');
+  if (!track || !photo) return;
+  track.addEventListener('mouseenter', () => photo.classList.add('is-mirrored-active'));
+  track.addEventListener('mouseleave', () => photo.classList.remove('is-mirrored-active'));
+  track.addEventListener('focusin',   () => photo.classList.add('is-mirrored-active'));
+  track.addEventListener('focusout',  () => photo.classList.remove('is-mirrored-active'));
+});
+
+/* ─── WAVEFORM BARS ─── */
+(function buildWaveform() {
+  const wf = qs('#waveform');
+  if (!wf) return;
+  const N = 64;
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < N; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'wf-bar';
+    const mid  = N / 2;
+    const dist = Math.abs(i - mid) / mid;
+    const height = 8 + (1 - dist * dist) * 40 + (Math.random() * 14);
+    bar.style.height            = height + 'px';
+    bar.style.animationDelay    = (Math.random() * 2.4) + 's';
+    bar.style.animationDuration = (1.8 + Math.random() * 1.4) + 's';
+    frag.appendChild(bar);
+  }
+  wf.appendChild(frag);
+})();
+
+/* ─── HERO REVEAL ─── */
+initHeroReveal({
+  duration: 1400,
+  reveals: [
+    { el: qs('#heroContent') },
+    { el: qs('#waveform'), delay: 500 },
+  ],
+});
+
+})();
+</script>
+</body>
+</html>
